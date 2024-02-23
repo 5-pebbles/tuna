@@ -26,7 +26,7 @@ I don't have any unit tests yet...
 
 <details><summary><h2>Api End Points</h2></summary>
 
-<details><summary><b>POST /init</b></summary>
+<details><summary><code>POST /init</code></summary>
 
 **Variables:**
 
@@ -46,7 +46,7 @@ HTTP 200
 
 </details>
 
-<details><summary><b>POST /login</b></summary>
+<details><summary><code>POST /login</code></summary>
 
 **Variables:**
 
@@ -67,7 +67,7 @@ cookie "session" exists
 
 </details>
 
-<details><summary><b>GET /user?username={{username}}&permissions={{permissions}}&limit={{limit}}</b></summary>
+<details><summary><code>GET /user?username={{username}}&permissions={{permissions}}&limit={{limit}}</code></summary>
 
 **Permissions**: `UserRead`
 
@@ -101,7 +101,7 @@ jsonpath "$[0].permissions" exists
 
 </details>
 
-<details><summary><b>DELETE /user/{{username}}</b></summary>
+<details><summary><code>DELETE /user/{{username}}</code></summary>
 
 **Permissions**: `None` If deleting your own account || `UserDelete` & All permissions of the target user
 
