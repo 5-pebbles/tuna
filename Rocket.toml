@@ -1,0 +1,2 @@
+[default.databases.user_db]
+url = "file:database/sqlite/db.sqlite?cache=shared"

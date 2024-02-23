@@ -1,0 +1,19 @@
+[package]
+name = "tuna"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rocket = { version = "0.5.0", features = ["json"] }
+rusqlite-from-row = "0.2.2"
+strum = { version = "0.26.1", features = ["derive"] }
+
+sqlvec = { path = "../sqlvec", features = ["serde"] }
+bcrypt = "0.15.0"
+uuid = { version = "1.7.0", features = ["v4"] }
+
+[dependencies.rocket_sync_db_pools]
+version = "0.1.0"
+features = ["sqlite_pool"]
