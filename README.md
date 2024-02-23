@@ -28,6 +28,8 @@ I don't have any unit tests yet...
 
 <details><summary><code>POST /init</code></summary>
 
+---
+
 **Variables:**
 
 - username: `String`.
@@ -47,6 +49,8 @@ HTTP 200
 </details>
 
 <details><summary><code>POST /login</code></summary>
+
+---
 
 **Variables:**
 
@@ -68,6 +72,8 @@ cookie "session" exists
 </details>
 
 <details><summary><code>GET /user?username={{username}}&permissions={{permissions}}&limit={{limit}}</code></summary>
+
+---
 
 **Permissions**: `UserRead`
 
@@ -102,6 +108,8 @@ jsonpath "$[0].permissions" exists
 </details>
 
 <details><summary><code>DELETE /user/{{username}}</code></summary>
+
+---
 
 **Permissions**: `None` If deleting your own account || `UserDelete` & All permissions of the target user
 
