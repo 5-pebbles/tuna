@@ -7,6 +7,10 @@ pub mod invites;
 pub mod permissions;
 pub mod users;
 
+pub mod albums;
+pub mod artists;
+pub mod tracks;
+
 pub fn fairing() -> AdHoc {
     AdHoc::on_ignite("Database Systems", |rocket| async {
         rocket.attach(Database::fairing()).attach(AdHoc::on_ignite(
