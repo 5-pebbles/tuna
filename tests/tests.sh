@@ -13,4 +13,8 @@ tests=(
 )
 for test in "${tests[@]}"; do
     hurl --very-verbose "${test}"
+    if [ $? -ne  0 ]; then
+        echo "Test failed: ${test}"
+        exit  1
+    fi
 done
