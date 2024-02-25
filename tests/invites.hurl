@@ -94,6 +94,12 @@ POST {{url}}/invite/peppers
     "password": "BadPass123"
 }
 HTTP 200
+POST {{url}}/invite/peppers
+{
+    "username": "SystemTest2",
+    "password": "NotAPass123"
+}
+HTTP 409
 
 GET {{url}}/invite?code=peppers
 HTTP 200
