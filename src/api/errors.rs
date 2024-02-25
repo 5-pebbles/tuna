@@ -1,6 +1,6 @@
 use bcrypt::BcryptError;
 use rocket::http::Status;
-use rocket_sync_db_pools::rusqlite::Error as RusqliteError;
+use rocket_sync_db_pools::rusqlite::{Error as RusqliteError, ErrorCode as RusqliteErrorCode};
 
 #[derive(Debug, Responder)]
 pub enum ApiError {
@@ -21,6 +21,11 @@ impl From<RusqliteError> for ApiError {
         let message = format!("Rusqlite Error: {e}");
         Self::RusqliteError(match e {
             RusqliteError::QueryReturnedNoRows => (Status::NotFound, message),
+            RusqliteError::SqliteFailure(error, _)
+                if error.code == RusqliteErrorCode::ConstraintViolation =>
+            {
+                (Status::Conflict, message)
+            }
             _ => (Status::InternalServerError, message),
         })
     }
