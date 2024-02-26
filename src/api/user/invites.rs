@@ -91,7 +91,7 @@ async fn invite_write(
 }
 
 #[get("/invite?<code>&<permissions>&<maxremaining>&<minremaining>&<creator>&<limit>")]
-async fn invite_read(
+async fn invite_get(
     db: Database,
     user: DangerousUser,
     code: Option<String>,
@@ -165,7 +165,7 @@ pub fn fairing() -> AdHoc {
     AdHoc::on_ignite("API Invite EndPoints", |rocket| async {
         rocket.mount(
             "/",
-            routes![invite_use, invite_write, invite_read, invite_delete],
+            routes![invite_use, invite_write, invite_get, invite_delete],
         )
     })
 }
