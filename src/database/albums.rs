@@ -1,17 +1,15 @@
 use rocket::serde::{Deserialize, Serialize};
-use rusqlite_from_row::FromRow;
-use sqlvec::SqlVec;
 
-#[derive(FromRow, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 pub struct Album {
-    id: String,
-    name: String,
-    artists: SqlVec<String>,
+    pub id: String,
+    pub name: String,
+    pub artists: Vec<String>,
     #[serde(default)]
-    release: u16,
+    pub release: u16,
     #[serde(default)]
-    genres: SqlVec<String>,
+    pub genres: Vec<String>,
     #[serde(default)]
-    count: u8,
+    pub count: u8,
 }

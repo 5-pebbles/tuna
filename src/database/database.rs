@@ -38,11 +38,33 @@ CREATE TABLE IF NOT EXISTS users (
 
             tx.execute(
                 "
+CREATE TABLE IF NOT EXISTS genres (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL
+);
+                ",
+                params![],
+            )?;
+
+            tx.execute(
+                "
 CREATE TABLE IF NOT EXISTS artists (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
-    genres TEXT NOT NULL DEFAULT '',
     bio TEXT NOT NULL DEFAULT ''
+);
+                ",
+                params![],
+            )?;
+
+            tx.execute(
+                "
+CREATE TABLE IF NOT EXISTS artist_genres (
+    artist_id TEXT NOT NULL,
+    genre_id TEXT NOT NULL,
+    PRIMARY KEY (artist_id, genre_id),
+    FOREIGN KEY (artist_id) REFERENCES artists(id),
+    FOREIGN KEY (genre_id) REFERENCES genres(id)
 );
                 ",
                 params![],
@@ -54,7 +76,6 @@ CREATE TABLE IF NOT EXISTS albums (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     release INTEGER NOT NULL DEFAULT  0,
-    genres TEXT NOT NULL DEFAULT '',
     count INTEGER NOT NULL DEFAULT 1
 );
                 ",
@@ -63,7 +84,20 @@ CREATE TABLE IF NOT EXISTS albums (
 
             tx.execute(
                 "
-CREATE TABLE album_artist (
+CREATE TABLE IF NOT EXISTS album_genres (
+    album_id TEXT NOT NULL,
+    genre_id TEXT NOT NULL,
+    PRIMARY KEY (album_id, genre_id),
+    FOREIGN KEY (album_id) REFERENCES album(id),
+    FOREIGN KEY (genre_id) REFERENCES genre(id)
+);
+                ",
+                params![],
+            )?;
+
+            tx.execute(
+                "
+CREATE TABLE IF NOT EXISTS artist_album (
     album_id TEXT NOT NULL,
     artist_id TEXT NOT NULL,
     PRIMARY KEY (album_id, artist_id),
@@ -76,13 +110,12 @@ CREATE TABLE album_artist (
 
             tx.execute(
                 "
-CREATE TABLE tracks (
+CREATE TABLE IF NOT EXISTS tracks (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
     release INTEGER NOT NULL DEFAULT  0,
     duration INTEGER NOT NULL DEFAULT  0,
     segments TEXT NOT NULL DEFAULT '',
-    genres TEXT NOT NULL DEFAULT '',
     lyrics TEXT NOT NULL DEFAULT ''
 );
                 ",
@@ -91,7 +124,21 @@ CREATE TABLE tracks (
 
             tx.execute(
                 "
-CREATE TABLE track_album (
+CREATE TABLE IF NOT EXISTS track_genres (
+    track_id TEXT NOT NULL,
+    genre_id TEXT NOT NULL,
+    PRIMARY KEY (track_id, genre_id),
+    FOREIGN KEY (track_id) REFERENCES tracks(id),
+    FOREIGN KEY (genre_id) REFERENCES genre(id)
+);
+                ",
+                params![],
+            )?;
+
+
+            tx.execute(
+                "
+CREATE TABLE IF NOT EXISTS album_track (
     track_id TEXT NOT NULL,
     album_id TEXT NOT NULL,
     PRIMARY KEY (track_id, album_id),

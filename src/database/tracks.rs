@@ -1,5 +1,4 @@
 use rocket::serde::{self, Deserialize, Serialize};
-use rusqlite_from_row::FromRow;
 use sqlvec::SqlVec;
 
 use core::str::FromStr;
@@ -27,20 +26,20 @@ impl FromStr for TrackSegment {
     }
 }
 
-#[derive(FromRow, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 pub struct Track {
-    id: String,
-    name: String,
-    album: String,
+    pub id: String,
+    pub name: String,
+    pub album: String,
     #[serde(default)]
-    release: u16,
+    pub release: u16,
     #[serde(default)]
-    duration: u32,
+    pub duration: u32,
     #[serde(default)]
-    segments: SqlVec<TrackSegment>,
+    pub segments: SqlVec<TrackSegment>,
     #[serde(default)]
-    genres: SqlVec<String>,
+    pub genres: Vec<String>,
     #[serde(default)]
-    lyrics: String,
+    pub lyrics: String,
 }
