@@ -10,6 +10,7 @@ tests=(
     "tests/invites.hurl"
     "tests/permissions.hurl"
     "tests/sessions.hurl"
+    "tests/genres.hurl"
 )
 for test in "${tests[@]}"; do
     hurl --very-verbose "${test}"
