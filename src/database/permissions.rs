@@ -23,4 +23,8 @@ pub enum Permission {
     GenreWrite,
     GenreRead,
     GenreDelete,
+
+    ArtistWrite,
+    ArtistRead,
+    ArtistDelete,
 }
