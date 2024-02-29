@@ -11,6 +11,7 @@ tests=(
     "tests/permissions.hurl"
     "tests/sessions.hurl"
     "tests/genres.hurl"
+    "tests/artists.hurl"
 )
 for test in "${tests[@]}"; do
     hurl --very-verbose "${test}"
