@@ -3,7 +3,7 @@ use rocket_sync_db_pools::{
     rusqlite::{params, Connection, Error},
 };
 
-#[database("user_db")]
+#[database("db")]
 pub struct Database(Connection);
 
 impl Database {
@@ -134,7 +134,6 @@ CREATE TABLE IF NOT EXISTS track_genres (
                 ",
                 params![],
             )?;
-
 
             tx.execute(
                 "

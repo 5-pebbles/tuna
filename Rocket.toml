@@ -1,2 +1,3 @@
-[default.databases.user_db]
+# Fun Fact: In-memory Databases don't support transactions...
+[default.databases.db]
 url = "file:database/sqlite/db.sqlite?cache=shared"
