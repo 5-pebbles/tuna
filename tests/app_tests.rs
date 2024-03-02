@@ -1,11 +1,11 @@
 use std::env;
 use std::io::{BufRead, BufReader};
-use std::process::{exit, Command, Stdio};
+use std::process::{Command, Stdio};
 
 #[test]
 fn hurl_tests() {
     // Set the HURL_url environment variable
-    env::set_var("HURL_url", "http://localhost:8000");
+    env::set_var("HURL_url", "http://127.0.0.1:8000");
 
     // Start cargo in the background
     let mut cargo_process = Command::new("cargo")
@@ -23,8 +23,8 @@ fn hurl_tests() {
         for line in reader.lines() {
             match line {
                 Ok(line) => {
+                    print!("{}", line);
                     if line.contains("Rocket has launched") {
-                        println!("Rocket has launched!");
                         break;
                     }
                 }
