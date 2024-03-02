@@ -4,26 +4,6 @@ Tuna is an open source music api, designed to allow client side automation & con
 
 > Warning: this is currently in a work in progress...
 
-## Testing
-
-**Application Testing:**
-
-```
-cargo run
-```
-
-Then:
-
-```
-./tests/tests.sh
-```
-
-**Unit Testing:**
-
-```
-I don't have any unit tests yet...
-```
-
 <details><summary><h2>Api End Points</h2></summary>
 
 <details><summary><code>POST /init</code></summary>
