@@ -1,54 +1,43 @@
 use crate::{
     api::errors::ApiError,
-    database::{database::Database, genres::Genre, permissions::Permission, users::DangerousUser},
+    database::{database::Database, permissions::Permission, users::DangerousUser},
 };
 use rocket::{fairing::AdHoc, http::Status, serde::json::Json};
-use rocket_sync_db_pools::rusqlite::{params, ToSql};
-use rusqlite_from_row::FromRow;
+use rocket_sync_db_pools::rusqlite::{params, Error::QueryReturnedNoRows, ToSql};
 
 type Result<T> = std::result::Result<T, ApiError>;
 
-#[post("/genre", data = "<genre>")]
-async fn genre_write(db: Database, user: DangerousUser, genre: Json<Genre>) -> Result<Json<Genre>> {
+#[post("/genre/<genre>")]
+async fn genre_write(db: Database, user: DangerousUser, genre: String) -> Result<Json<String>> {
     if !user.has_permissions(&[Permission::GenreWrite]) {
         Err(Status::Forbidden)?
     }
-    let genre = genre.into_inner();
-    db.run(move |conn| -> Result<Json<Genre>> {
-        conn.execute(
-            "INSERT INTO genres (id, name) VALUES (?1, ?2)",
-            params![genre.id, genre.name],
-        )?;
+    db.run(move |conn| -> Result<Json<String>> {
+        conn.execute("INSERT INTO genres (id) VALUES (?1)", params![genre])?;
 
         Ok(Json(genre))
     })
     .await
 }
 
-#[get("/genre?<id>&<name>&<limit>")]
+#[get("/genre?<genre>&<limit>")]
 async fn genre_get(
     db: Database,
     user: DangerousUser,
-    id: Option<u16>,
-    name: Option<String>,
+    genre: Option<String>,
     limit: Option<u16>,
-) -> Result<Json<Vec<Genre>>> {
+) -> Result<Json<Vec<String>>> {
     if !user.has_permissions(&[Permission::GenreRead]) {
         Err(Status::Forbidden)?
     }
 
-    db.run(move |conn| -> Result<Json<Vec<Genre>>> {
+    db.run(move |conn| -> Result<Json<Vec<String>>> {
         let mut sql = "SELECT * FROM genres WHERE 1=1".to_string();
         let mut params_vec = Vec::new();
 
-        if let Some(id_val) = id {
-            sql += " AND id = ?";
-            params_vec.push(id_val.to_string());
-        }
-
-        if let Some(name_val) = name {
-            sql += " AND name LIKE ?";
-            params_vec.push(format!("%{}%", name_val));
+        if let Some(genre_val) = genre {
+            sql += " AND id LIKE ?";
+            params_vec.push(format!("%{}%", genre_val));
         }
 
         sql += &format!(" LIMIT {}", limit.unwrap_or(50));
@@ -58,25 +47,47 @@ async fn genre_get(
 
         Ok(Json(
             conn.prepare(&sql)?
-                .query_map(&params_sql[..], Genre::try_from_row)?
+                .query_map(&params_sql[..], |row| row.get(0))?
                 .map(|v| v.map_err(|e| ApiError::from(e)))
-                .collect::<Result<Vec<Genre>>>()?,
+                .collect::<Result<Vec<String>>>()?,
         ))
     })
     .await
 }
 
-#[delete("/genre/<id>")]
-async fn genre_delete(db: Database, user: DangerousUser, id: u16) -> Result<()> {
+#[delete("/genre/<genre>")]
+async fn genre_delete(db: Database, user: DangerousUser, genre: String) -> Result<()> {
     if !user.has_permissions(&[Permission::GenreDelete]) {
         Err(Status::Forbidden)?
     }
 
     db.run(move |conn| -> Result<()> {
-        conn.execute("DELETE FROM genres WHERE id = ?", params![id])?;
-        conn.execute("DELETE FROM artist_genres WHERE genre_id = ?", params![id])?;
-        conn.execute("DELETE FROM album_genres WHERE genre_id = ?", params![id])?;
-        conn.execute("DELETE FROM track_genres WHERE genre_id = ?", params![id])?;
+        let tx = conn.transaction()?;
+
+        if let Err(QueryReturnedNoRows) =
+            tx.query_row("SELECT 1 FROM genres WHERE id = ?", params![genre], |_| {
+                Ok(())
+            })
+        {
+            Err(Status::NotFound)?
+        }
+
+        tx.execute("DELETE FROM genres WHERE id = ?", params![genre])?;
+        tx.execute(
+            "DELETE FROM artist_genres WHERE genre_id = ?",
+            params![genre],
+        )?;
+        tx.execute(
+            "DELETE FROM album_genres WHERE genre_id = ?",
+            params![genre],
+        )?;
+        tx.execute(
+            "DELETE FROM track_genres WHERE genre_id = ?",
+            params![genre],
+        )?;
+
+        tx.commit()?;
+
         Ok(())
     })
     .await

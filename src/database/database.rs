@@ -39,8 +39,7 @@ CREATE TABLE IF NOT EXISTS users (
             tx.execute(
                 "
 CREATE TABLE IF NOT EXISTS genres (
-    id INTEGER PRIMARY KEY,
-    name TEXT NOT NULL
+    id TEXT PRIMARY KEY
 );
                 ",
                 params![],
@@ -88,8 +87,8 @@ CREATE TABLE IF NOT EXISTS album_genres (
     album_id TEXT NOT NULL,
     genre_id TEXT NOT NULL,
     PRIMARY KEY (album_id, genre_id),
-    FOREIGN KEY (album_id) REFERENCES album(id),
-    FOREIGN KEY (genre_id) REFERENCES genre(id)
+    FOREIGN KEY (album_id) REFERENCES albums(id),
+    FOREIGN KEY (genre_id) REFERENCES genres(id)
 );
                 ",
                 params![],
@@ -97,7 +96,7 @@ CREATE TABLE IF NOT EXISTS album_genres (
 
             tx.execute(
                 "
-CREATE TABLE IF NOT EXISTS artist_album (
+CREATE TABLE IF NOT EXISTS artist_albums (
     album_id TEXT NOT NULL,
     artist_id TEXT NOT NULL,
     PRIMARY KEY (album_id, artist_id),
@@ -137,7 +136,7 @@ CREATE TABLE IF NOT EXISTS track_genres (
 
             tx.execute(
                 "
-CREATE TABLE IF NOT EXISTS album_track (
+CREATE TABLE IF NOT EXISTS album_tracks (
     track_id TEXT NOT NULL,
     album_id TEXT NOT NULL,
     PRIMARY KEY (track_id, album_id),
