@@ -5,11 +5,11 @@ use rocket::serde::{Deserialize, Serialize};
 pub struct Album {
     pub id: String,
     pub name: String,
-    pub artists: Vec<String>,
-    #[serde(default)]
     pub release: u16,
     #[serde(default)]
-    pub genres: Vec<String>,
+    pub artists: Vec<String>,
     #[serde(default)]
-    pub count: u8,
+    pub tracks: Vec<String>,
+    #[serde(default)]
+    pub genres: Vec<String>,
 }
