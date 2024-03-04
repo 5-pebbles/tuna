@@ -31,9 +31,9 @@ async fn artist_write(
         )?;
 
         for genre in artist.genres.iter() {
-            let genre_id: u16 = tx
+            let genre_id: String = tx
                 .query_row(
-                    "SELECT id FROM genres WHERE name = ?",
+                    "SELECT id FROM genres WHERE id = ?",
                     params![genre],
                     |row| row.get(0),
                 )
@@ -70,7 +70,8 @@ async fn artist_get(
     }
 
     db.run(move |conn| -> Result<Json<Vec<Artist>>> {
-        let mut sql = "SELECT artists.id, artists.name, artists.bio, COALESCE(GROUP_CONCAT(genres.name), '') AS genres FROM artists LEFT JOIN artist_genres ON artists.id = artist_genres.artist_id LEFT JOIN genres ON genres.id = artist_genres.genre_id WHERE 1=1".to_string();
+        let mut sql = "SELECT artists.id, artists.name, artists.bio, COALESCE(GROUP_CONCAT(artist_genres.genre_id), '') AS genres FROM artists
+            LEFT JOIN artist_genres ON artists.id = artist_genres.artist_id WHERE 1=1".to_string();
         let mut params_vec = Vec::new();
 
         if let Some(id_val) = id {
@@ -86,7 +87,7 @@ async fn artist_get(
         if let Some(genres_val) = genres {
             let genres_val = genres_val.into_inner();
             let genre_placeholders = genres_val.iter().map(|_| "?").collect::<Vec<_>>().join(", ");
-            sql += &format!(" AND genres.name IN ({})", genre_placeholders);
+            sql += &format!(" AND artist_genres.genre_id IN ({})", genre_placeholders);
             params_vec.extend(genres_val);
         }
 
@@ -133,7 +134,7 @@ async fn artist_delete(db: Database, user: DangerousUser, id: String) -> Result<
 
         tx.execute("DELETE FROM artists WHERE id = ?", params![id])?;
         tx.execute("DELETE FROM artist_genres WHERE artist_id = ?", params![id])?;
-        tx.execute("DELETE FROM artist_album WHERE artist_id = ?", params![id])?;
+        tx.execute("DELETE FROM artist_albums WHERE artist_id = ?", params![id])?;
 
         tx.commit()?;
 

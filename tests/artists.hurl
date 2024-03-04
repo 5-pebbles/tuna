@@ -10,11 +10,8 @@ POST {{url}}/login
     "password": "BadPass123"
 }
 HTTP 200
-POST {{url}}/genre
-{
-    "id": 0,
-    "name": "indie pop"
-}
+POST {{url}}/genre/indie%20pop
+HTTP 200
 # End Setup
 
 POST {{url}}/artist
@@ -113,6 +110,7 @@ DELETE {{url}}/permissions/SystemTest
 [
     "ArtistWrite"
 ]
+HTTP 200
 
 POST {{url}}/artist
 {
@@ -127,6 +125,7 @@ DELETE {{url}}/permissions/SystemTest
 [
     "ArtistRead"
 ]
+HTTP 200
 
 GET {{url}}/artist
 HTTP 403
@@ -135,12 +134,13 @@ DELETE {{url}}/permissions/SystemTest
 [
     "ArtistDelete"
 ]
+HTTP 200
 
 DELETE {{url}}/artist/0
 HTTP 403
 
 # Cleanup
-DELETE {{url}}/genre/0
+DELETE {{url}}/genre/indie%20pop
 HTTP 200
 DELETE {{url}}/user/SystemTest
 HTTP 200

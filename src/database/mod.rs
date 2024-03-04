@@ -7,8 +7,6 @@ pub mod invites;
 pub mod permissions;
 pub mod users;
 
-pub mod genres;
-
 pub mod albums;
 pub mod artists;
 pub mod tracks;
