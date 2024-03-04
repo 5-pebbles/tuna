@@ -51,6 +51,7 @@ fn hurl_tests() {
         "tests/sessions.hurl",
         "tests/genres.hurl",
         "tests/artists.hurl",
+        "tests/albums.hurl",
     ];
 
     // Run all application tests
