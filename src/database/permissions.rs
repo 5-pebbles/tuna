@@ -31,4 +31,8 @@ pub enum Permission {
     AlbumWrite,
     AlbumRead,
     AlbumDelete,
+
+    TrackWrite,
+    TrackRead,
+    TrackDelete,
 }
