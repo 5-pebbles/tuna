@@ -27,4 +27,8 @@ pub enum Permission {
     ArtistWrite,
     ArtistRead,
     ArtistDelete,
+
+    AlbumWrite,
+    AlbumRead,
+    AlbumDelete,
 }
