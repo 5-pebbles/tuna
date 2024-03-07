@@ -1,0 +1,63 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "tuna",
+    "description": "",
+    "license": {
+      "name": ""
+    },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/docs/openapi.json": {
+      "get": {
+        "tags": [
+          "crate"
+        ],
+        "summary": "Retrieve json OpenAPI documentation",
+        "description": "Retrieve json OpenAPI documentation\n\nRequires: `DocsRead` permission",
+        "operationId": "docs_json",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden requires permission `DocsRead`"
+          }
+        }
+      }
+    },
+    "/docs/openapi.yaml": {
+      "get": {
+        "tags": [
+          "crate"
+        ],
+        "summary": "Retrieve yaml OpenAPI documentation",
+        "description": "Retrieve yaml OpenAPI documentation\n\nRequires: `DocsRead` permission",
+        "operationId": "docs_yaml",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/x-yaml": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden requires permission `DocsRead`"
+          }
+        }
+      }
+    }
+  }
+}

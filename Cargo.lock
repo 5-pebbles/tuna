@@ -1622,7 +1622,6 @@ dependencies = [
  "rocket",
  "rocket_sync_db_pools",
  "rusqlite-from-row",
- "serde_yaml",
  "sqlvec",
  "strum",
  "utoipa",

@@ -6,10 +6,34 @@ info:
     name: ''
   version: 0.1.0
 paths:
+  /docs/openapi.json:
+    get:
+      tags:
+      - crate
+      summary: Retrieve json OpenAPI documentation
+      description: |-
+        Retrieve json OpenAPI documentation
+
+        Requires: `DocsRead` permission
+      operationId: docs_json
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string
+        '403':
+          description: Forbidden requires permission `DocsRead`
   /docs/openapi.yaml:
     get:
       tags:
       - crate
+      summary: Retrieve yaml OpenAPI documentation
+      description: |-
+        Retrieve yaml OpenAPI documentation
+
+        Requires: `DocsRead` permission
       operationId: docs_yaml
       responses:
         '200':
@@ -19,4 +43,4 @@ paths:
               schema:
                 type: string
         '403':
-          description: Unauthorized, requires permission `DocsRead`
+          description: Forbidden requires permission `DocsRead`

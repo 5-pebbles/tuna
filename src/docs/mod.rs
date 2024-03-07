@@ -1,31 +1,55 @@
-use rocket::{fairing::AdHoc, http::{Status, ContentType}};
-use std::{fs::File, io::Write, path::Path};
+use rocket::{
+    fairing::AdHoc,
+    http::{ContentType, Status},
+};
+use std::{
+    fs::{create_dir_all, File},
+    io::Write,
+    path::Path,
+};
 
 use utoipa::OpenApi;
 
 use crate::database::{permissions::Permission, users::DangerousUser};
 
 #[derive(OpenApi)]
-#[openapi(paths(docs_yaml), components(schemas()))]
+#[openapi(paths(docs_yaml, docs_json), components(schemas()))]
 struct ApiDoc;
 
 fn generate_docs() -> Result<(), String> {
     let openapi = ApiDoc::openapi();
-    let yaml =
-        serde_yaml::to_string(&openapi).map_err(|e| format!("Failed to serialize docs: {}", e))?;
+    let docs = [
+        (
+            "docs/openapi.yaml",
+            openapi
+                .to_yaml()
+                .map_err(|e| format!("Failed to serialize yaml docs: {}", e))?,
+        ),
+        (
+            "docs/openapi.json",
+            openapi
+                .to_pretty_json()
+                .map_err(|e| format!("Failed to serialize json docs: {}", e))?,
+        ),
+    ];
 
-    let path = Path::new("docs/openapi.yaml");
-    if let Some(parent) = path.parent() {
-        std::fs::create_dir_all(parent)
-            .map_err(|e| format!("Failed to create directory: {}", e))?;
+    for (path, content) in docs {
+        let path = Path::new(path);
+        if let Some(parent) = path.parent() {
+            create_dir_all(parent).map_err(|e| format!("Failed to create directory: {}", e))?;
+        }
+
+        let mut file = File::create(path).map_err(|e| format!("Failed to create file: {}", e))?;
+        file.write_all(content.as_bytes())
+            .map_err(|e| format!("Failed to write to file: {}", e))?;
     }
-    let mut file = File::create(path).map_err(|e| format!("Failed to create file: {}", e))?;
-    file.write_all(yaml.as_bytes())
-        .map_err(|e| format!("Failed to write to file: {}", e))?;
 
     Ok(())
 }
 
+/// Retrieve yaml OpenAPI documentation
+///
+/// Requires: `DocsRead` permission
 #[utoipa::path(
     get,
     path = "/docs/openapi.yaml",
@@ -38,7 +62,7 @@ fn generate_docs() -> Result<(), String> {
     ),
     (
         status = 403,
-        description = "Unauthorized requires permission `DocsRead`"
+        description = "Forbidden requires permission `DocsRead`"
     ))
 )]
 #[get("/docs/openapi.yaml")]
@@ -47,13 +71,43 @@ fn docs_yaml(user: DangerousUser) -> Result<(ContentType, String), Status> {
         Err(Status::Forbidden)?
     }
 
-    let yaml = std::fs::read_to_string("docs/openapi.yaml").map_err(|_| Status::InternalServerError)?;
+    let yaml =
+        std::fs::read_to_string("docs/openapi.yaml").map_err(|_| Status::InternalServerError)?;
     Ok((ContentType::new("application", "x-yaml"), yaml))
+}
+
+/// Retrieve json OpenAPI documentation
+///
+/// Requires: `DocsRead` permission
+#[utoipa::path(
+    get,
+    path = "/docs/openapi.json",
+    responses(
+    (
+        status = 200,
+        description = "Success",
+        content_type = "application/json",
+        body = String,
+    ),
+    (
+        status = 403,
+        description = "Forbidden requires permission `DocsRead`"
+    ))
+)]
+#[get("/docs/openapi.json")]
+fn docs_json(user: DangerousUser) -> Result<(ContentType, String), Status> {
+    if !user.has_permissions(&[Permission::DocsRead]) {
+        Err(Status::Forbidden)?
+    }
+
+    let json =
+        std::fs::read_to_string("docs/openapi.json").map_err(|_| Status::InternalServerError)?;
+    Ok((ContentType::new("application", "json"), json))
 }
 
 pub fn fairing() -> AdHoc {
     AdHoc::on_ignite("Docs Systems", |rocket| async {
         generate_docs().expect("Failed to generate_docs");
-        rocket.mount("/", routes![docs_yaml])
+        rocket.mount("/", routes![docs_yaml, docs_json])
     })
 }
