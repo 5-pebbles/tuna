@@ -1,8 +1,9 @@
 use rocket::{fairing::AdHoc, http::{Status, ContentType}};
-
 use std::{fs::File, io::Write, path::Path};
 
 use utoipa::OpenApi;
+
+use crate::database::{permissions::Permission, users::DangerousUser};
 
 #[derive(OpenApi)]
 #[openapi(paths(docs_yaml), components(schemas()))]
@@ -28,21 +29,25 @@ fn generate_docs() -> Result<(), String> {
 #[utoipa::path(
     get,
     path = "/docs/openapi.yaml",
-    responses((
+    responses(
+    (
         status = 200,
         description = "Success",
         content_type = "application/x-yaml",
         body = String,
+    ),
+    (
+        status = 403,
+        description = "Unauthorized requires permission `DocsRead`"
     ))
 )]
 #[get("/docs/openapi.yaml")]
-fn docs_yaml() -> Result<(ContentType, String), (Status, String)> {
-    let yaml = std::fs::read_to_string("docs/openapi.yaml").map_err(|e| {
-        (
-            Status::InternalServerError,
-            format!("Failed to read docs: {}", e),
-        )
-    })?;
+fn docs_yaml(user: DangerousUser) -> Result<(ContentType, String), Status> {
+    if !user.has_permissions(&[Permission::DocsRead]) {
+        Err(Status::Forbidden)?
+    }
+
+    let yaml = std::fs::read_to_string("docs/openapi.yaml").map_err(|_| Status::InternalServerError)?;
     Ok((ContentType::new("application", "x-yaml"), yaml))
 }
 

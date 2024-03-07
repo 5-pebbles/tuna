@@ -18,3 +18,5 @@ paths:
             application/x-yaml:
               schema:
                 type: string
+        '403':
+          description: Unauthorized, requires permission `DocsRead`
