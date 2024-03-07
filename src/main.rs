@@ -4,6 +4,7 @@ extern crate rocket;
 use std::{fs, path::Path};
 
 mod api;
+mod docs;
 mod database;
 
 #[get("/")]
@@ -25,5 +26,6 @@ fn rocket() -> _ {
     rocket::build()
         .attach(database::fairing())
         .attach(api::fairing())
+        .attach(docs::fairing())
         .mount("/", routes![index])
 }
