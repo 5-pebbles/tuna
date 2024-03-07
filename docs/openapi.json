@@ -31,7 +31,14 @@
           "403": {
             "description": "Forbidden requires permission `DocsRead`"
           }
-        }
+        },
+        "security": [
+          {
+            "permissions": [
+              "DocsRead"
+            ]
+          }
+        ]
       }
     },
     "/docs/openapi.yaml": {
@@ -56,7 +63,23 @@
           "403": {
             "description": "Forbidden requires permission `DocsRead`"
           }
-        }
+        },
+        "security": [
+          {
+            "permissions": [
+              "DocsRead"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "api_key": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "permissions"
       }
     }
   }

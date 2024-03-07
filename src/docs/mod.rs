@@ -8,13 +8,32 @@ use std::{
     path::Path,
 };
 
-use utoipa::OpenApi;
+use utoipa::{
+    openapi::{
+        schema::Components,
+        security::{ApiKey, ApiKeyValue, SecurityScheme},
+    },
+    Modify, OpenApi,
+};
 
 use crate::database::{permissions::Permission, users::DangerousUser};
 
 #[derive(OpenApi)]
-#[openapi(paths(docs_yaml, docs_json), components(schemas()))]
+#[openapi(paths(docs_yaml, docs_json), components(schemas()), modifiers(&SecurityAddon))]
 struct ApiDoc;
+
+struct SecurityAddon;
+
+impl Modify for SecurityAddon {
+    fn modify(&self, openapi: &mut utoipa::openapi::OpenApi) {
+        let components = openapi.components.get_or_insert_with(Components::default);
+
+        components.add_security_scheme(
+            "api_key",
+            SecurityScheme::ApiKey(ApiKey::Cookie(ApiKeyValue::new("permissions"))),
+        )
+    }
+}
 
 fn generate_docs() -> Result<(), String> {
     let openapi = ApiDoc::openapi();
@@ -63,7 +82,10 @@ fn generate_docs() -> Result<(), String> {
     (
         status = 403,
         description = "Forbidden requires permission `DocsRead`"
-    ))
+    )),
+    security(
+        ("permissions" = ["DocsRead"])
+    )
 )]
 #[get("/docs/openapi.yaml")]
 fn docs_yaml(user: DangerousUser) -> Result<(ContentType, String), Status> {
@@ -92,7 +114,10 @@ fn docs_yaml(user: DangerousUser) -> Result<(ContentType, String), Status> {
     (
         status = 403,
         description = "Forbidden requires permission `DocsRead`"
-    ))
+    )),
+    security(
+        ("permissions" = ["DocsRead"])
+    )
 )]
 #[get("/docs/openapi.json")]
 fn docs_json(user: DangerousUser) -> Result<(ContentType, String), Status> {
