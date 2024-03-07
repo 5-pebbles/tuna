@@ -114,7 +114,6 @@ CREATE TABLE IF NOT EXISTS tracks (
     name TEXT NOT NULL,
     release INTEGER NOT NULL DEFAULT  0,
     duration INTEGER NOT NULL DEFAULT  0,
-    segments TEXT NOT NULL DEFAULT '',
     lyrics TEXT NOT NULL DEFAULT ''
 );
                 ",
