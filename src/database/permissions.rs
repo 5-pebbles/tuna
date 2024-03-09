@@ -6,6 +6,9 @@ use strum::{Display, EnumIter, EnumString};
 #[serde(crate = "rocket::serde")]
 #[strum(serialize_all = "camelCase")]
 pub enum Permission {
+    //Docs
+    DocsRead,
+
     // Invites
     InviteWrite, // you can only create an invite with permissions you already have...
     InviteRead,

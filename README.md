@@ -4,104 +4,13 @@ Tuna is an open source music api, designed to allow client side automation & con
 
 > Warning: this is currently in a work in progress...
 
-<details><summary><h2>Api End Points</h2></summary>
 
-<details><summary><code>POST /init</code></summary>
+## Docs
 
----
+> Not all endpoints are documented yet, well actually, most arn't...
 
-**Variables:**
+OpenAPI docs are generated with the help of [utoipa](https://github.com/juhaku/utoipa), they can be found in the docs directory.
 
-- username: `String`.
+## Tests
 
-- password: `String`
-
-```hurl
-# create the first account in the database
-POST {{url}}/init
-{
-    "username": {username},
-    "password": {password}
-}
-HTTP 200
-```
-
-</details>
-
-<details><summary><code>POST /login</code></summary>
-
----
-
-**Variables:**
-
-- username: `String`.
-
-- password: `String`
-
-```hurl
-POST {{url}}/login
-{
-    "username": {{username}},
-    "password": {{password}}
-}
-HTTP 200
-[Asserts]
-cookie "session" exists
-```
-
-</details>
-
-<details><summary><code>GET /user?username={{username}}&permissions={{permissions}}&limit={{limit}}</code></summary>
-
----
-
-**Permissions**: `UserRead`
-
-**Variables:**
-
-- username: `String`.
-
-- permissions: `URL encoded Json<Vec<String>>`.
-
-- limit: `u16`.
-
-```hurl
-# partially matches for the given variables, all are optional.
-GET {{url}}/user?username={{username}}&permissions={{permissions}}&limit={{limit}}
-HTTP 200
-[Asserts]
-jsonpath "$" count <= {{limit}}
-jsonpath "$[0].username" contains {{username}}
-jsonpath "$[0].permissions" exists
-```
-
-**Response Example:**
-```json
-[
-    {
-        "username": "Owen",
-        "permissions": ["InviteRead", "InviteDelete"]
-    }
-]
-```
-
-</details>
-
-<details><summary><code>DELETE /user/{{username}}</code></summary>
-
----
-
-**Permissions**: `None` If deleting your own account || `UserDelete` & All permissions of the target user
-
-**Variables:**
-
-- username: `String`.
-
-```hurl
-DELETE {{url}}/user/{{username}}
-HTTP 200
-```
-
-</details>
-
-</details>
+Tests can be run with `cargo tests` however its required that you install [hurl](https://github.com/Orange-OpenSource/hurl) first.
