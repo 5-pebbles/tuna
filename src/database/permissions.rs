@@ -4,7 +4,7 @@ use strum::{Display, EnumIter, EnumString};
 #[non_exhaustive]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Display, EnumIter, EnumString)]
 #[serde(crate = "rocket::serde")]
-#[strum(serialize_all = "camelCase")]
+#[strum(serialize_all = "PascalCase", ascii_case_insensitive)]
 pub enum Permission {
     //Docs
     DocsRead,
