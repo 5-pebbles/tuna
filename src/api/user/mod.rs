@@ -1,7 +1,4 @@
-use rocket::{
-    fairing::AdHoc,
-    serde::{Deserialize, Serialize},
-};
+use rocket::{fairing::AdHoc, serde::Serialize};
 use rusqlite_from_row::FromRow;
 use sqlvec::SqlVec;
 
@@ -11,13 +8,6 @@ mod invites;
 mod permissions;
 mod sessions;
 mod users;
-
-#[derive(Deserialize)]
-#[serde(crate = "rocket::serde")]
-pub struct DangerousUserLogin {
-    username: String,
-    password: String,
-}
 
 #[derive(Serialize, FromRow)]
 #[serde(crate = "rocket::serde")]

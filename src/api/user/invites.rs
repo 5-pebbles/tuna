@@ -5,9 +5,12 @@ use rusqlite_from_row::FromRow;
 use sqlvec::SqlVec;
 
 use crate::{
-    api::{errors::ApiError, user::DangerousUserLogin},
+    api::errors::ApiError,
     database::{
-        database::Database, invites::Invite, permissions::Permission, users::DangerousUser,
+        database::Database,
+        invites::Invite,
+        permissions::Permission,
+        users::{DangerousLogin, DangerousUser},
     },
 };
 
@@ -15,7 +18,7 @@ type Result<T> = std::result::Result<T, ApiError>;
 
 // creates a new account
 #[post("/invite/<code>", data = "<login>")]
-async fn invite_use(db: Database, code: String, login: Json<DangerousUserLogin>) -> Result<()> {
+async fn invite_use(db: Database, code: String, login: Json<DangerousLogin>) -> Result<()> {
     let login = login.into_inner();
 
     db.run(move |conn| -> Result<()> {
@@ -102,7 +105,7 @@ async fn invite_get(
     limit: Option<u16>,
 ) -> Result<Json<Vec<Invite>>> {
     if !user.has_permissions(&[Permission::InviteRead]) {
-        return Err(Status::Forbidden)?
+        return Err(Status::Forbidden)?;
     }
 
     db.run(move |conn| -> Result<Json<Vec<Invite>>> {
@@ -153,7 +156,7 @@ async fn invite_get(
 #[delete("/invite/<code>")]
 async fn invite_delete(db: Database, user: DangerousUser, code: String) -> Result<()> {
     if !user.has_permissions(&[Permission::InviteDelete]) {
-        return Err(Status::Forbidden)?
+        return Err(Status::Forbidden)?;
     }
 
     db.run(move |conn| conn.execute("DELETE FROM invites WHERE code = ?", params![code]))

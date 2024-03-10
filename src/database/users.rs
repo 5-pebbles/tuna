@@ -13,6 +13,14 @@ use crate::{
 use rusqlite_from_row::FromRow;
 use sqlvec::SqlVec;
 
+#[derive(Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct DangerousLogin {
+    pub username: String,
+    pub password: String,
+}
+
+
 #[derive(Debug, Deserialize, Serialize, FromRow)]
 #[serde(crate = "rocket::serde")]
 pub struct DangerousUser {

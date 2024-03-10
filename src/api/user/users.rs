@@ -7,18 +7,19 @@ use strum::IntoEnumIterator;
 use uuid::Uuid;
 
 use crate::{
-    api::{
-        errors::ApiError,
-        user::{DangerousUserLogin, UserApiItem},
+    api::{errors::ApiError, user::UserApiItem},
+    database::{
+        database::Database,
+        permissions::Permission,
+        users::{DangerousLogin, DangerousUser},
     },
-    database::{database::Database, permissions::Permission, users::DangerousUser},
 };
 
 type Result<T> = std::result::Result<T, ApiError>;
 
 // create the first user in the database
 #[post("/init", data = "<login>")]
-async fn user_init(db: Database, login: Json<DangerousUserLogin>) -> Result<()> {
+async fn user_init(db: Database, login: Json<DangerousLogin>) -> Result<()> {
     let login = login.into_inner();
 
     db.run(move |conn| -> Result<()> {
@@ -50,11 +51,7 @@ async fn user_init(db: Database, login: Json<DangerousUserLogin>) -> Result<()> 
 }
 
 #[post("/login", data = "<login>")]
-async fn user_login(
-    db: Database,
-    jar: &CookieJar<'_>,
-    login: Json<DangerousUserLogin>,
-) -> Result<()> {
+async fn user_login(db: Database, jar: &CookieJar<'_>, login: Json<DangerousLogin>) -> Result<()> {
     let login = login.into_inner();
     let session: String = db
         .run(move |conn| -> Result<String> {
