@@ -15,6 +15,7 @@ bcrypt = "0.15.0"
 uuid = { version = "1.7.0", features = ["v4"] }
 
 utoipa = { version = "4.2.0", features = ["rocket_extras", "yaml"] }
+refinery = { version = "0.8.12", features = ["rusqlite"] }
 
 [dependencies.rocket_sync_db_pools]
 version = "0.1.0"

@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY
+,   permissions TEXT NOT NULL DEFAULT ''
+,   hash TEXT NOT NULL
+,   sessions TEXT NOT NULL DEFAULT ''
+)
