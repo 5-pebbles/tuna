@@ -1,10 +1,9 @@
-use bcrypt::{hash, verify, DEFAULT_COST};
-use rocket::{fairing::AdHoc, http::CookieJar, http::Status, serde::json::Json};
+use bcrypt::{hash, DEFAULT_COST};
+use rocket::{fairing::AdHoc, http::Status, serde::json::Json};
 use rocket_sync_db_pools::rusqlite::{params, ToSql};
 use rusqlite_from_row::FromRow;
 use sqlvec::SqlVec;
 use strum::IntoEnumIterator;
-use uuid::Uuid;
 
 use crate::{
     api::{errors::ApiError, user::UserApiItem},
@@ -48,45 +47,6 @@ async fn user_init(db: Database, login: Json<DangerousLogin>) -> Result<()> {
         Ok(())
     })
     .await
-}
-
-#[post("/login", data = "<login>")]
-async fn user_login(db: Database, jar: &CookieJar<'_>, login: Json<DangerousLogin>) -> Result<()> {
-    let login = login.into_inner();
-    let session: String = db
-        .run(move |conn| -> Result<String> {
-            let tx = conn.transaction()?;
-
-            let (hash, mut sessions): (String, Vec<String>) = tx.query_row(
-                "SELECT hash, sessions FROM users WHERE username = ?",
-                params![&login.username],
-                |row| {
-                    Ok((
-                        row.get(0)?,
-                        row.get::<usize, SqlVec<String>>(1)?.into_inner(),
-                    ))
-                },
-            )?;
-
-            if !verify(login.password, &hash)? {
-                Err(Status::Forbidden)?
-            }
-
-            let session: String = Uuid::new_v4().to_string();
-            sessions.push(session.clone());
-
-            tx.execute(
-                "UPDATE users SET sessions = ? WHERE username = ?",
-                params![SqlVec::new(sessions), login.username],
-            )?;
-
-            tx.commit()?;
-
-            Ok(session)
-        })
-        .await?;
-    jar.add(("session", session));
-    Ok(())
 }
 
 #[get("/user?<username>&<permissions>&<limit>")]
@@ -164,6 +124,6 @@ async fn user_delete(db: Database, user: DangerousUser, username: &str) -> Resul
 
 pub fn fairing() -> AdHoc {
     AdHoc::on_ignite("API User EndPoints", |rocket| async {
-        rocket.mount("/", routes![user_init, user_login, user_get, user_delete,])
+        rocket.mount("/", routes![user_init, user_get, user_delete,])
     })
 }
