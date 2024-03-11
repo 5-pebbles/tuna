@@ -23,7 +23,7 @@ fn hurl_tests() {
         for line in reader.lines() {
             match line {
                 Ok(line) => {
-                    print!("{}", line);
+                    println!("{}", line);
                     if line.contains("Rocket has launched") {
                         break;
                     }

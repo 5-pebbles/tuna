@@ -10,7 +10,7 @@ use crate::{
         database::Database,
         invites::Invite,
         permissions::Permission,
-        users::{DangerousLogin, DangerousUser},
+        users::{DangerousLogin, User},
     },
 };
 
@@ -33,12 +33,11 @@ async fn invite_use(db: Database, code: String, login: Json<DangerousLogin>) -> 
             .map_err(|e| ApiError::from(e))?;
 
         tx.execute(
-            "INSERT INTO users (username, permissions, hash, sessions) VALUES (?1, ?2, ?3, ?4)",
+            "INSERT INTO users (username, permissions, hash) VALUES (?1, ?2, ?3)",
             params![
                 login.username,
                 permissions,
                 hash(login.password, DEFAULT_COST)?,
-                ""
             ],
         )?;
 
@@ -57,15 +56,15 @@ async fn invite_use(db: Database, code: String, login: Json<DangerousLogin>) -> 
 }
 
 #[post("/invite", data = "<invite>")]
-async fn invite_write(
-    db: Database,
-    user: DangerousUser,
-    invite: Json<Invite>,
-) -> Result<Json<Invite>> {
+async fn invite_write(db: Database, user: User, invite: Json<Invite>) -> Result<Json<Invite>> {
     let mut invite = invite.into_inner();
     let mut required_permissions = invite.permissions.inner().to_owned();
     required_permissions.push(Permission::InviteWrite);
-    if !user.has_permissions(&required_permissions) {
+
+    if !required_permissions
+        .iter()
+        .all(|permission| user.permissions.contains(permission))
+    {
         Err(Status::Forbidden)?
     }
 
@@ -96,7 +95,7 @@ async fn invite_write(
 #[get("/invite?<code>&<permissions>&<maxremaining>&<minremaining>&<creator>&<limit>")]
 async fn invite_get(
     db: Database,
-    user: DangerousUser,
+    user: User,
     code: Option<String>,
     permissions: Option<Json<Vec<Permission>>>,
     maxremaining: Option<u16>,
@@ -104,7 +103,7 @@ async fn invite_get(
     creator: Option<String>,
     limit: Option<u16>,
 ) -> Result<Json<Vec<Invite>>> {
-    if !user.has_permissions(&[Permission::InviteRead]) {
+    if !user.permissions.contains(&Permission::InviteRead) {
         return Err(Status::Forbidden)?;
     }
 
@@ -154,8 +153,8 @@ async fn invite_get(
 }
 
 #[delete("/invite/<code>")]
-async fn invite_delete(db: Database, user: DangerousUser, code: String) -> Result<()> {
-    if !user.has_permissions(&[Permission::InviteDelete]) {
+async fn invite_delete(db: Database, user: User, code: String) -> Result<()> {
+    if !user.permissions.contains(&Permission::InviteDelete) {
         return Err(Status::Forbidden)?;
     }
 

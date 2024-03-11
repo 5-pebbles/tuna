@@ -4,14 +4,14 @@ use rocket::{
     outcome::Outcome,
     request::{self, FromRequest, Request},
 };
-use rocket_sync_db_pools::rusqlite::{params, Error::QueryReturnedNoRows};
+use rocket_sync_db_pools::rusqlite::{params, Error, Row};
+
+use std::str::FromStr;
 
 use crate::{
     api::errors::ApiError,
     database::{permissions::Permission, Database},
 };
-use rusqlite_from_row::FromRow;
-use sqlvec::SqlVec;
 
 #[derive(Deserialize)]
 #[serde(crate = "rocket::serde")]
@@ -20,37 +20,38 @@ pub struct DangerousLogin {
     pub password: String,
 }
 
-
-#[derive(Debug, Deserialize, Serialize, FromRow)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(crate = "rocket::serde")]
-pub struct DangerousUser {
+pub struct User {
     pub username: String,
-    pub permissions: SqlVec<Permission>,
-    #[serde(skip_serializing)]
-    pub hash: String,
-    #[serde(skip_serializing)]
-    pub sessions: SqlVec<String>,
+    pub permissions: Vec<Permission>,
 }
 
-impl DangerousUser {
-    pub fn has_permissions(&self, permissions: &[Permission]) -> bool {
-        let self_permissions = self.permissions.inner();
-        for permission in permissions {
-            if !self_permissions.contains(permission) {
-                return false;
-            }
-        }
-        true
+impl User {
+    pub fn try_from_row(row: &Row) -> Result<Self, Error> {
+        let permissions: Vec<Permission> = row
+            .get::<&str, String>("permissions")?
+            .split('\u{F1}')
+            .filter_map(|s| -> Option<Permission> {
+                if s.is_empty() {
+                    None
+                } else {
+                    Permission::from_str(s).ok()
+                }
+            })
+            .collect();
+        Ok(User {
+            username: row.get("username")?,
+            permissions,
+        })
     }
 }
 
 #[rocket::async_trait]
-impl<'r> FromRequest<'r> for DangerousUser {
+impl<'r> FromRequest<'r> for User {
     type Error = ApiError;
 
-    async fn from_request(
-        request: &'r Request<'_>,
-    ) -> request::Outcome<DangerousUser, Self::Error> {
+    async fn from_request(request: &'r Request<'_>) -> request::Outcome<User, Self::Error> {
         let db = match request.guard::<Database>().await {
             Outcome::Success(db) => db,
             Outcome::Forward(f) => return Outcome::Forward(f),
@@ -59,7 +60,7 @@ impl<'r> FromRequest<'r> for DangerousUser {
             }
         };
 
-        let cookie_val = match request
+        let token = match request
             .cookies()
             .get("token")
             .map(|val| val.value().to_string())
@@ -68,18 +69,26 @@ impl<'r> FromRequest<'r> for DangerousUser {
             None => return Outcome::Forward(Status::Unauthorized),
         };
 
-        match db
+        let response = db
             .run(move |conn| {
                 conn.query_row(
-                    "SELECT * FROM users WHERE sessions LIKE ?",
-                    params![format!("%{}%", cookie_val)],
-                    DangerousUser::try_from_row,
+                    "SELECT users.username, users.permissions FROM tokens
+                    LEFT JOIN users ON tokens.username = users.username
+                    WHERE tokens.id = ?",
+                    params![token],
+                    //"SELECT username, COALESCE(GROUP_CONCAT(DISTINCT user_permissions.permission_id)) as permissions FROM tokens
+                    //LEFT JOIN users ON tokens.username = user.username
+                    //LEFT JOIN user_permissions ON tokens.username = user_permissions.username
+                    //WHERE tokens.id = ?",
+                    //params![token],
+                    User::try_from_row,
                 )
             })
-            .await
-        {
+            .await;
+            dbg!(&response);
+        match response {
             Ok(v) => Outcome::Success(v),
-            Err(QueryReturnedNoRows) => Outcome::Forward(Status::Unauthorized),
+            Err(Error::QueryReturnedNoRows) => Outcome::Forward(Status::Unauthorized),
             Err(e) => Outcome::Error((Status::InternalServerError, ApiError::from(e))),
         }
     }

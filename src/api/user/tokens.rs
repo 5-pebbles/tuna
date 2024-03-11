@@ -5,7 +5,6 @@ use rocket::{
     serde::json::Json,
 };
 use rocket_sync_db_pools::rusqlite::params;
-use sqlvec::SqlVec;
 use uuid::Uuid;
 
 use crate::{
@@ -13,7 +12,7 @@ use crate::{
     database::{
         database::Database,
         permissions::Permission,
-        users::{DangerousLogin, DangerousUser},
+        users::{DangerousLogin, User},
     },
 };
 
@@ -30,15 +29,10 @@ async fn token_write(
         .run(move |conn| -> Result<String> {
             let tx = conn.transaction()?;
 
-            let (hash, mut tokens): (String, Vec<String>) = tx.query_row(
-                "SELECT hash, sessions FROM users WHERE username = ?",
+            let hash: String = tx.query_row(
+                "SELECT hash FROM users WHERE username = ?",
                 params![&login.username],
-                |row| {
-                    Ok((
-                        row.get(0)?,
-                        row.get::<usize, SqlVec<String>>(1)?.into_inner(),
-                    ))
-                },
+                |row| row.get("hash"),
             )?;
 
             if !verify(login.password, &hash)? {
@@ -46,11 +40,10 @@ async fn token_write(
             }
 
             let token: String = Uuid::new_v4().to_string();
-            tokens.push(token.clone());
 
             tx.execute(
-                "UPDATE users SET sessions = ? WHERE username = ?",
-                params![SqlVec::new(tokens), login.username],
+                "INSERT INTO tokens (id, username) VALUES (?1, ?2)",
+                params![token, login.username],
             )?;
 
             tx.commit()?;
@@ -63,18 +56,13 @@ async fn token_write(
 }
 
 #[delete("/token/<username>")]
-async fn token_delete(db: Database, user: DangerousUser, username: String) -> Result<()> {
-    if username != user.username && !user.has_permissions(&[Permission::TokenDelete]) {
+async fn token_delete(db: Database, user: User, username: String) -> Result<()> {
+    if username != user.username && !user.permissions.contains(&Permission::TokenDelete) {
         Err(Status::Forbidden)?
     }
 
-    db.run(move |conn| {
-        conn.execute(
-            "UPDATE users SET sessions = '' WHERE username = ?",
-            params![username],
-        )
-    })
-    .await?;
+    db.run(move |conn| conn.execute("DELETE FROM tokens WHERE username = ?", params![username]))
+        .await?;
     Ok(())
 }
 

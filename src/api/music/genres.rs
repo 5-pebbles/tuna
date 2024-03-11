@@ -1,6 +1,6 @@
 use crate::{
     api::errors::ApiError,
-    database::{database::Database, permissions::Permission, users::DangerousUser},
+    database::{database::Database, permissions::Permission, users::User},
 };
 use rocket::{fairing::AdHoc, http::Status, serde::json::Json};
 use rocket_sync_db_pools::rusqlite::{params, Error::QueryReturnedNoRows, ToSql};
@@ -8,8 +8,8 @@ use rocket_sync_db_pools::rusqlite::{params, Error::QueryReturnedNoRows, ToSql};
 type Result<T> = std::result::Result<T, ApiError>;
 
 #[post("/genre/<genre>")]
-async fn genre_write(db: Database, user: DangerousUser, genre: String) -> Result<Json<String>> {
-    if !user.has_permissions(&[Permission::GenreWrite]) {
+async fn genre_write(db: Database, user: User, genre: String) -> Result<Json<String>> {
+    if !user.permissions.contains(&Permission::GenreWrite) {
         Err(Status::Forbidden)?
     }
     db.run(move |conn| -> Result<Json<String>> {
@@ -23,11 +23,11 @@ async fn genre_write(db: Database, user: DangerousUser, genre: String) -> Result
 #[get("/genre?<genre>&<limit>")]
 async fn genre_get(
     db: Database,
-    user: DangerousUser,
+    user: User,
     genre: Option<String>,
     limit: Option<u16>,
 ) -> Result<Json<Vec<String>>> {
-    if !user.has_permissions(&[Permission::GenreRead]) {
+    if !user.permissions.contains(&Permission::GenreRead) {
         Err(Status::Forbidden)?
     }
 
@@ -56,8 +56,8 @@ async fn genre_get(
 }
 
 #[delete("/genre/<genre>")]
-async fn genre_delete(db: Database, user: DangerousUser, genre: String) -> Result<()> {
-    if !user.has_permissions(&[Permission::GenreDelete]) {
+async fn genre_delete(db: Database, user: User, genre: String) -> Result<()> {
+    if !user.permissions.contains(&Permission::GenreDelete) {
         Err(Status::Forbidden)?
     }
 

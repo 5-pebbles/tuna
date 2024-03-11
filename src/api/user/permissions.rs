@@ -4,7 +4,7 @@ use sqlvec::SqlVec;
 
 use crate::{
     api::errors::ApiError,
-    database::{database::Database, permissions::Permission, users::DangerousUser},
+    database::{database::Database, permissions::Permission, users::User},
 };
 
 type Result<T> = std::result::Result<T, ApiError>;
@@ -12,7 +12,7 @@ type Result<T> = std::result::Result<T, ApiError>;
 #[post("/permissions/<username>", data = "<permissions_to_add>")]
 async fn permissions_add(
     db: Database,
-    user: DangerousUser,
+    user: User,
     username: String,
     permissions_to_add: Json<Vec<Permission>>,
 ) -> Result<()> {
@@ -20,7 +20,10 @@ async fn permissions_add(
 
     let mut required_permissions = permissions_to_add.clone();
     required_permissions.push(Permission::PermissionAdd);
-    if !user.has_permissions(&required_permissions) {
+    if !required_permissions
+        .iter()
+        .all(|permission| user.permissions.contains(permission))
+    {
         Err(Status::Forbidden)?
     }
 
@@ -53,7 +56,7 @@ async fn permissions_add(
 #[delete("/permissions/<username>", data = "<permissions_to_delete>")]
 async fn permissions_delete(
     db: Database,
-    user: DangerousUser,
+    user: User,
     username: String,
     permissions_to_delete: Json<Vec<Permission>>,
 ) -> Result<()> {
@@ -72,7 +75,10 @@ async fn permissions_delete(
 
         let mut required_permissions = current_permissions.clone();
         required_permissions.push(Permission::PermissionDelete);
-        if !user.has_permissions(&required_permissions) {
+        if !required_permissions
+            .iter()
+            .all(|permission| user.permissions.contains(permission))
+        {
             Err(Status::Forbidden)?
         }
 
