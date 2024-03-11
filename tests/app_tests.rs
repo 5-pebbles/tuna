@@ -48,7 +48,7 @@ fn hurl_tests() {
         "tests/users.hurl",
         "tests/invites.hurl",
         "tests/permissions.hurl",
-        "tests/sessions.hurl",
+        "tests/tokens.hurl",
         "tests/genres.hurl",
         "tests/artists.hurl",
         "tests/albums.hurl",

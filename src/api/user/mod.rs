@@ -6,7 +6,7 @@ use crate::database::permissions::Permission;
 
 mod invites;
 mod permissions;
-mod sessions;
+mod tokens;
 mod users;
 
 #[derive(Serialize, FromRow)]
@@ -22,6 +22,6 @@ pub fn fairing() -> AdHoc {
             .attach(invites::fairing())
             .attach(permissions::fairing())
             .attach(users::fairing())
-            .attach(sessions::fairing())
+            .attach(tokens::fairing())
     })
 }

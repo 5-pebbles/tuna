@@ -1,28 +1,36 @@
 use bcrypt::verify;
-use rocket::{fairing::AdHoc, http::{Status, CookieJar}, serde::json::Json};
+use rocket::{
+    fairing::AdHoc,
+    http::{CookieJar, Status},
+    serde::json::Json,
+};
 use rocket_sync_db_pools::rusqlite::params;
-use uuid::Uuid;
 use sqlvec::SqlVec;
+use uuid::Uuid;
 
 use crate::{
     api::errors::ApiError,
-    database::{database::Database, permissions::Permission, users::{DangerousUser, DangerousLogin}},
+    database::{
+        database::Database,
+        permissions::Permission,
+        users::{DangerousLogin, DangerousUser},
+    },
 };
 
 type Result<T> = std::result::Result<T, ApiError>;
 
-#[post("/login", data = "<login>")]
-async fn session_write(
+#[post("/token", data = "<login>")]
+async fn token_write(
     db: Database,
     jar: &CookieJar<'_>,
     login: Json<DangerousLogin>,
-) -> Result<()> {
+) -> Result<Json<String>> {
     let login = login.into_inner();
-    let session: String = db
+    let token: String = db
         .run(move |conn| -> Result<String> {
             let tx = conn.transaction()?;
 
-            let (hash, mut sessions): (String, Vec<String>) = tx.query_row(
+            let (hash, mut tokens): (String, Vec<String>) = tx.query_row(
                 "SELECT hash, sessions FROM users WHERE username = ?",
                 params![&login.username],
                 |row| {
@@ -37,30 +45,26 @@ async fn session_write(
                 Err(Status::Forbidden)?
             }
 
-            let session: String = Uuid::new_v4().to_string();
-            sessions.push(session.clone());
+            let token: String = Uuid::new_v4().to_string();
+            tokens.push(token.clone());
 
             tx.execute(
                 "UPDATE users SET sessions = ? WHERE username = ?",
-                params![SqlVec::new(sessions), login.username],
+                params![SqlVec::new(tokens), login.username],
             )?;
 
             tx.commit()?;
 
-            Ok(session)
+            Ok(token)
         })
         .await?;
-    jar.add(("session", session));
-    Ok(())
+    jar.add(("token", token.clone()));
+    Ok(Json(token))
 }
 
-#[delete("/session/<username>")]
-async fn session_delete(
-    db: Database,
-    user: DangerousUser,
-    username: String,
-) -> Result<()> {
-    if username != user.username && !user.has_permissions(&[Permission::SessionsDelete]) {
+#[delete("/token/<username>")]
+async fn token_delete(db: Database, user: DangerousUser, username: String) -> Result<()> {
+    if username != user.username && !user.has_permissions(&[Permission::TokenDelete]) {
         Err(Status::Forbidden)?
     }
 
@@ -75,7 +79,7 @@ async fn session_delete(
 }
 
 pub fn fairing() -> AdHoc {
-    AdHoc::on_ignite("API Session EndPoints", |rocket| async {
-        rocket.mount("/", routes![session_write, session_delete])
+    AdHoc::on_ignite("API Token EndPoints", |rocket| async {
+        rocket.mount("/", routes![token_write, token_delete])
     })
 }

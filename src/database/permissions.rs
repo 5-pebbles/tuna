@@ -20,7 +20,7 @@ pub enum Permission {
     PermissionAdd, // grant permissions (you still need to have the permissions you grant)
     PermissionDelete, // Only on users who's permissions are the same or a subset of their own
     // Sessions
-    SessionsDelete, // delete another users sessions
+    TokenDelete, // delete another users sessions
 
     // Music Stuff
     GenreWrite,

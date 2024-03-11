@@ -61,7 +61,7 @@ impl<'r> FromRequest<'r> for DangerousUser {
 
         let cookie_val = match request
             .cookies()
-            .get("session")
+            .get("token")
             .map(|val| val.value().to_string())
         {
             Some(v) => v,

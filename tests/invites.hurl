@@ -4,14 +4,14 @@ POST {{url}}/init
     "password": "BadPass123"
 }
 HTTP 200
-POST {{url}}/login
+POST {{url}}/token
 {
     "username": "SystemTest",
     "password": "BadPass123"
 }
 HTTP 200
 [Captures]
-rootSession: cookie "session"
+rootToken: cookie "token"
 # End Setup
 
 
@@ -115,14 +115,14 @@ POST {{url}}/invite/peppers
 HTTP 200
 
 GET {{url}}/invite?code=peppers
-Cookie: session={{rootSession}}
+Cookie: token={{rootToken}}
 HTTP 200
 [Asserts]
 jsonpath "$" count == 0
 
 
 # only create invites for which you have permissions
-POST {{url}}/login
+POST {{url}}/token
 {
     "username": "SystemTest2",
     "password": "BadPass123"
@@ -151,18 +151,18 @@ DELETE {{url}}/invite/peppers2
 HTTP 200
 
 GET {{url}}/invite?code=peppers2
-Cookie: session={{rootSession}}
+Cookie: token={{rootToken}}
 HTTP 200
 [Asserts]
 jsonpath "$" count == 0
 
 # Cleanup
 DELETE {{url}}/user/SystemTest3
-Cookie: session={{rootSession}}
+Cookie: token={{rootToken}}
 HTTP 200
 DELETE {{url}}/user/SystemTest2
-Cookie: session={{rootSession}}
+Cookie: token={{rootToken}}
 HTTP 200
 DELETE {{url}}/user/SystemTest
-Cookie: session={{rootSession}}
+Cookie: token={{rootToken}}
 HTTP 200
