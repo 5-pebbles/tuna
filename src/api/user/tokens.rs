@@ -61,8 +61,10 @@ async fn token_delete(db: Database, user: User, username: String) -> Result<()> 
         Err(Status::Forbidden)?
     }
 
-    db.run(move |conn| conn.execute("DELETE FROM tokens WHERE username = ?", params![username]))
-        .await?;
+    db.run(move |conn| {
+        conn.execute_batch("PRAGMA foreign_keys = ON;")?;
+        conn.execute("DELETE FROM tokens WHERE username = ?", params![username])
+    }).await?;
     Ok(())
 }
 

@@ -170,6 +170,8 @@ async fn track_delete(db: Database, user: User, id: String) -> Result<()> {
     }
 
     db.run(move |conn| -> Result<()> {
+        conn.execute_batch("PRAGMA foreign_keys = ON;")?;
+
         let tx = conn.transaction()?;
 
         if let Err(QueryReturnedNoRows) =
@@ -179,8 +181,6 @@ async fn track_delete(db: Database, user: User, id: String) -> Result<()> {
         }
 
         tx.execute("DELETE FROM tracks WHERE id = ?", params![id])?;
-        tx.execute("DELETE FROM track_genres WHERE track_id = ?", params![id])?;
-        tx.execute("DELETE FROM album_tracks WHERE track_id = ?", params![id])?;
 
         tx.commit()?;
 

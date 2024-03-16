@@ -3,19 +3,13 @@ use rocket_sync_db_pools::rusqlite::{params, Error::QueryReturnedNoRows, ToSql};
 
 use crate::{
     api::errors::ApiError,
-    database::{
-        artists::Artist, database::Database, permissions::Permission, users::User,
-    },
+    database::{artists::Artist, database::Database, permissions::Permission, users::User},
 };
 
 type Result<T> = std::result::Result<T, ApiError>;
 
 #[post("/artist", data = "<artist>")]
-async fn artist_write(
-    db: Database,
-    user: User,
-    artist: Json<Artist>,
-) -> Result<Json<Artist>> {
+async fn artist_write(db: Database, user: User, artist: Json<Artist>) -> Result<Json<Artist>> {
     if !user.permissions.contains(&Permission::ArtistWrite) {
         Err(Status::Forbidden)?
     }
@@ -122,6 +116,8 @@ async fn artist_delete(db: Database, user: User, id: String) -> Result<()> {
     }
 
     db.run(move |conn| -> Result<()> {
+        conn.execute_batch("PRAGMA foreign_keys = ON;")?;
+
         let tx = conn.transaction()?;
 
         if let Err(QueryReturnedNoRows) = tx.query_row(
@@ -133,8 +129,6 @@ async fn artist_delete(db: Database, user: User, id: String) -> Result<()> {
         }
 
         tx.execute("DELETE FROM artists WHERE id = ?", params![id])?;
-        tx.execute("DELETE FROM artist_genres WHERE artist_id = ?", params![id])?;
-        tx.execute("DELETE FROM artist_albums WHERE artist_id = ?", params![id])?;
 
         tx.commit()?;
 

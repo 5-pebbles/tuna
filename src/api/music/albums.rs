@@ -160,6 +160,8 @@ async fn album_delete(db: Database, user: User, id: String) -> Result<()> {
     }
 
     db.run(move |conn| -> Result<()> {
+        conn.execute_batch("PRAGMA foreign_keys = ON;")?;
+
         let tx = conn.transaction()?;
 
         if let Err(QueryReturnedNoRows) =
@@ -169,9 +171,6 @@ async fn album_delete(db: Database, user: User, id: String) -> Result<()> {
         }
 
         tx.execute("DELETE FROM albums WHERE id = ?", params![id])?;
-        tx.execute("DELETE FROM album_genres WHERE album_id = ?", params![id])?;
-        tx.execute("DELETE FROM artist_albums WHERE album_id = ?", params![id])?;
-        tx.execute("DELETE FROM album_tracks WHERE album_id = ?", params![id])?;
 
         tx.commit()?;
 

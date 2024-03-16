@@ -62,6 +62,8 @@ async fn genre_delete(db: Database, user: User, genre: String) -> Result<()> {
     }
 
     db.run(move |conn| -> Result<()> {
+        conn.execute_batch("PRAGMA foreign_keys = ON;")?;
+
         let tx = conn.transaction()?;
 
         if let Err(QueryReturnedNoRows) =
@@ -73,18 +75,6 @@ async fn genre_delete(db: Database, user: User, genre: String) -> Result<()> {
         }
 
         tx.execute("DELETE FROM genres WHERE id = ?", params![genre])?;
-        tx.execute(
-            "DELETE FROM artist_genres WHERE genre_id = ?",
-            params![genre],
-        )?;
-        tx.execute(
-            "DELETE FROM album_genres WHERE genre_id = ?",
-            params![genre],
-        )?;
-        tx.execute(
-            "DELETE FROM track_genres WHERE genre_id = ?",
-            params![genre],
-        )?;
 
         tx.commit()?;
 

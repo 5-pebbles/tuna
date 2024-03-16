@@ -1,16 +1,18 @@
+use bcrypt::{hash, DEFAULT_COST};
 use rocket::serde::{Deserialize, Serialize};
 use rocket::{
     http::Status,
     outcome::Outcome,
     request::{self, FromRequest, Request},
 };
-use rocket_sync_db_pools::rusqlite::{params, Error, Row};
-
-use std::str::FromStr;
+use rocket_sync_db_pools::rusqlite::{params, params_from_iter, Error, Row, Transaction};
 
 use crate::{
     api::errors::ApiError,
-    database::{permissions::Permission, Database},
+    database::{
+        permissions::{permissions_from_row, Permission},
+        Database,
+    },
 };
 
 #[derive(Deserialize)]
@@ -18,6 +20,45 @@ use crate::{
 pub struct DangerousLogin {
     pub username: String,
     pub password: String,
+}
+
+impl DangerousLogin {
+    pub fn insert_user_into_transaction<T: IntoIterator<Item = Permission>>(
+        &self,
+        permissions_iter: T,
+        tx: &Transaction<'_>,
+    ) -> Result<(), ApiError> {
+        tx.execute(
+            "INSERT INTO users (username, hash) VALUES (?1, ?2)",
+            params![self.username, hash(&self.password, DEFAULT_COST)?],
+        )?;
+
+        let permissions = permissions_iter.into_iter().collect::<Vec<_>>();
+        if permissions.is_empty() {
+            return Ok(())
+        }
+
+        let placeholders = permissions
+            .iter()
+            .map(|_| "(?, ?)")
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        let params = params_from_iter(
+            permissions
+                .into_iter()
+                .flat_map(|p| [<&'static str>::from(p), &self.username]),
+        );
+
+        let sql = format!(
+            "INSERT INTO user_permissions (id, username) VALUES {}",
+            placeholders
+        );
+
+        tx.execute(&sql, params)?;
+
+        Ok(())
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -29,17 +70,7 @@ pub struct User {
 
 impl User {
     pub fn try_from_row(row: &Row) -> Result<Self, Error> {
-        let permissions: Vec<Permission> = row
-            .get::<&str, String>("permissions")?
-            .split('\u{F1}')
-            .filter_map(|s| -> Option<Permission> {
-                if s.is_empty() {
-                    None
-                } else {
-                    Permission::from_str(s).ok()
-                }
-            })
-            .collect();
+        let permissions: Vec<Permission> = permissions_from_row(row)?;
         Ok(User {
             username: row.get("username")?,
             permissions,
@@ -69,24 +100,20 @@ impl<'r> FromRequest<'r> for User {
             None => return Outcome::Forward(Status::Unauthorized),
         };
 
-        let response = db
+        match db
             .run(move |conn| {
                 conn.query_row(
-                    "SELECT users.username, users.permissions FROM tokens
+                    "SELECT users.username AS username, COALESCE(GROUP_CONCAT(DISTINCT user_permissions.id), '') AS permissions FROM tokens
                     LEFT JOIN users ON tokens.username = users.username
-                    WHERE tokens.id = ?",
+                    LEFT JOIN user_permissions ON tokens.username = user_permissions.username
+                    WHERE tokens.id = ?
+                    GROUP BY user_permissions.username",
                     params![token],
-                    //"SELECT username, COALESCE(GROUP_CONCAT(DISTINCT user_permissions.permission_id)) as permissions FROM tokens
-                    //LEFT JOIN users ON tokens.username = user.username
-                    //LEFT JOIN user_permissions ON tokens.username = user_permissions.username
-                    //WHERE tokens.id = ?",
-                    //params![token],
                     User::try_from_row,
                 )
             })
-            .await;
-            dbg!(&response);
-        match response {
+            .await
+        {
             Ok(v) => Outcome::Success(v),
             Err(Error::QueryReturnedNoRows) => Outcome::Forward(Status::Unauthorized),
             Err(e) => Outcome::Error((Status::InternalServerError, ApiError::from(e))),

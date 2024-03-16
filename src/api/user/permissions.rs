@@ -1,10 +1,11 @@
 use rocket::{fairing::AdHoc, http::Status, serde::json::Json};
-use rocket_sync_db_pools::rusqlite::params;
-use sqlvec::SqlVec;
+use rocket_sync_db_pools::rusqlite::{params, params_from_iter};
+
+use std::str::FromStr;
 
 use crate::{
     api::errors::ApiError,
-    database::{database::Database, permissions::Permission, users::User},
+    database::{database::Database, permissions::{Permission, permissions_from_row}, users::User},
 };
 
 type Result<T> = std::result::Result<T, ApiError>;
@@ -29,22 +30,20 @@ async fn permissions_add(
 
     db.run(move |conn| -> Result<()> {
         let tx = conn.transaction()?;
-        dbg!(&permissions_to_add);
-        let all_permissions = [
-            permissions_to_add,
-            tx.query_row(
-                "SELECT permissions FROM users WHERE username = ?",
-                params![&username],
-                |row| row.get::<usize, SqlVec<Permission>>(0),
-            )?
-            .into_inner(),
-        ]
-        .concat();
-        dbg!(&all_permissions);
+
+        let sql = format!(
+            "INSERT OR IGNORE INTO user_permissions (id, username) VALUES {};",
+            permissions_to_add.iter().map(|_| format!("\n (?, ?)"))
+                .collect::<Vec<String>>()
+                .join(",")
+        );
+
+        let params = params_from_iter(permissions_to_add.into_iter()
+            .map(|p| [<&'static str>::from(p), &username]).flatten());
 
         tx.execute(
-            "UPDATE users SET permissions = ? WHERE username = ?",
-            params![SqlVec::new(all_permissions), username],
+            &sql,
+            params,
         )?;
         tx.commit()?;
         Ok(())
@@ -63,17 +62,18 @@ async fn permissions_delete(
     let permissions_to_delete = permissions_to_delete.into_inner();
 
     db.run(move |conn| {
+        conn.execute_batch("PRAGMA foreign_keys = ON;")?;
+
         let tx = conn.transaction()?;
+        
+        let mut required_permissions = tx.query_row(
+            "SELECT GROUP_CONCAT(DISTINCT id) AS permissions FROM user_permissions
+            WHERE username = ?",
+            params![&username],
+            permissions_from_row,
+            )?;
 
-        let mut current_permissions = tx
-            .query_row(
-                "SELECT permissions FROM users WHERE username = ?",
-                params![&username],
-                |row| Ok(row.get::<usize, SqlVec<Permission>>(0)?),
-            )?
-            .into_inner();
 
-        let mut required_permissions = current_permissions.clone();
         required_permissions.push(Permission::PermissionDelete);
         if !required_permissions
             .iter()
@@ -82,11 +82,21 @@ async fn permissions_delete(
             Err(Status::Forbidden)?
         }
 
-        current_permissions.retain(|v| !permissions_to_delete.contains(v));
+
+        let permission_placeholders = permissions_to_delete.iter().map(|_| "?").collect::<Vec<_>>().join(", ");
+
+        let params = params_from_iter(
+            std::iter::once(username.as_str())
+            .chain(
+                permissions_to_delete
+                .into_iter()
+                .map(|p| <&'static str>::from(p))
+            )
+        );
 
         tx.execute(
-            "UPDATE users SET permissions = ? WHERE username = ?",
-            params![SqlVec::new(current_permissions), username],
+            &format!("DELETE FROM user_permissions WHERE username = ? AND id IN ({})", permission_placeholders),
+            params,
         )?;
 
         tx.commit()?;

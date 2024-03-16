@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS track_genres (track_id TEXT NOT NULL
+,   genre_id TEXT NOT NULL
+,   PRIMARY KEY (track_id, genre_id)
+,   FOREIGN KEY (track_id) REFERENCES tracks(id) ON DELETE CASCADE ON UPDATE CASCADE
+,   FOREIGN KEY (genre_id) REFERENCES genres(id) ON DELETE CASCADE ON UPDATE CASCADE
+);
