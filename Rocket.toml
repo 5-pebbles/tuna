@@ -1,3 +1,8 @@
+[release]
+address = "0.0.0.0"
+port = 8000
+ip_header = false
+
 # Fun Fact: In-memory Databases don't support transactions...
 [default.databases.db]
 url = "file:database/sqlite/db.sqlite?cache=shared"
