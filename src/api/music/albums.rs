@@ -3,14 +3,14 @@ use rocket_sync_db_pools::rusqlite::{params, Error::QueryReturnedNoRows, ToSql};
 
 use crate::{
     api::errors::ApiError,
-    database::{albums::Album, database::Database, permissions::Permission, users::DangerousUser},
+    database::{albums::Album, database::Database, permissions::Permission, users::User},
 };
 
 type Result<T> = std::result::Result<T, ApiError>;
 
 #[post("/album", data = "<album>")]
-async fn album_write(db: Database, user: DangerousUser, album: Json<Album>) -> Result<Json<Album>> {
-    if !user.has_permissions(&[Permission::AlbumWrite]) {
+async fn album_write(db: Database, user: User, album: Json<Album>) -> Result<Json<Album>> {
+    if !user.permissions.contains(&Permission::AlbumWrite) {
         Err(Status::Forbidden)?
     }
 
@@ -55,7 +55,7 @@ async fn album_write(db: Database, user: DangerousUser, album: Json<Album>) -> R
 #[get("/album?<id>&<name>&<maxrelease>&<minrelease>&<genres>&<maxcount>&<mincount>&<limit>")]
 async fn album_get(
     db: Database,
-    user: DangerousUser,
+    user: User,
     id: Option<String>,
     name: Option<String>,
     maxrelease: Option<u16>,
@@ -65,7 +65,7 @@ async fn album_get(
     mincount: Option<u16>,
     limit: Option<u16>,
 ) -> Result<Json<Vec<Album>>> {
-    if !user.has_permissions(&[Permission::AlbumRead]) {
+    if !user.permissions.contains(&Permission::AlbumRead) {
         Err(Status::Forbidden)?
     }
 
@@ -154,12 +154,14 @@ async fn album_get(
 }
 
 #[delete("/album/<id>")]
-async fn album_delete(db: Database, user: DangerousUser, id: String) -> Result<()> {
-    if !user.has_permissions(&[Permission::AlbumDelete]) {
+async fn album_delete(db: Database, user: User, id: String) -> Result<()> {
+    if !user.permissions.contains(&Permission::AlbumDelete) {
         Err(Status::Forbidden)?
     }
 
     db.run(move |conn| -> Result<()> {
+        conn.execute_batch("PRAGMA foreign_keys = ON;")?;
+
         let tx = conn.transaction()?;
 
         if let Err(QueryReturnedNoRows) =
@@ -169,9 +171,6 @@ async fn album_delete(db: Database, user: DangerousUser, id: String) -> Result<(
         }
 
         tx.execute("DELETE FROM albums WHERE id = ?", params![id])?;
-        tx.execute("DELETE FROM album_genres WHERE album_id = ?", params![id])?;
-        tx.execute("DELETE FROM artist_albums WHERE album_id = ?", params![id])?;
-        tx.execute("DELETE FROM album_tracks WHERE album_id = ?", params![id])?;
 
         tx.commit()?;
 

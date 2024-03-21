@@ -18,29 +18,30 @@ fn hurl_tests() {
     let cargo_pid = cargo_process.id();
 
     // wait for rocket
-    if let Some(ref mut stdout) = cargo_process.stdout {
-        let reader = BufReader::new(stdout);
-        for line in reader.lines() {
-            match line {
-                Ok(line) => {
-                    print!("{}", line);
-                    if line.contains("Rocket has launched") {
-                        break;
-                    }
-                }
-                Err(e) => {
-                    cargo_process
-                        .kill()
-                        .unwrap_or_else(|_| panic!("Failed to kill cargo: pid = {}", cargo_pid));
-                    panic!("Failed to read line: {}", e);
+    let lines = BufReader::new(match cargo_process.stdout {
+        Some(ref mut v) => v,
+        None => {
+            cargo_process
+                .kill()
+                .unwrap_or_else(|_| panic!("Failed to kill cargo: pid = {}", cargo_pid));
+            panic!("No stdout to parse...");
+        }
+    }).lines();
+
+    for line in lines {
+        match line {
+            Ok(line) => {
+                if line.contains("Rocket has launched") {
+                    break;
                 }
             }
+            Err(e) => {
+                cargo_process
+                    .kill()
+                    .unwrap_or_else(|_| panic!("Failed to kill cargo: pid = {}", cargo_pid));
+                panic!("Failed to read line: {}", e);
+            }
         }
-    } else {
-        cargo_process
-            .kill()
-            .unwrap_or_else(|_| panic!("Failed to kill cargo: pid = {}", cargo_pid));
-        panic!("No stdout to parse...");
     }
 
     // Define the test files
@@ -48,7 +49,7 @@ fn hurl_tests() {
         "tests/users.hurl",
         "tests/invites.hurl",
         "tests/permissions.hurl",
-        "tests/sessions.hurl",
+        "tests/tokens.hurl",
         "tests/genres.hurl",
         "tests/artists.hurl",
         "tests/albums.hurl",

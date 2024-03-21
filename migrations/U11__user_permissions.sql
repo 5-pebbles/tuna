@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS user_permissions (id TEXT NOT NULL
+,   username TEXT NOT NULL
+,   PRIMARY KEY (id, username)
+,   FOREIGN KEY (id) REFERENCES permissions(id) ON DELETE CASCADE ON UPDATE CASCADE
+,   FOREIGN KEY (username) REFERENCES users(username) ON DELETE CASCADE ON UPDATE CASCADE
+);
+

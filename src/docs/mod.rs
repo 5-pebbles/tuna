@@ -16,7 +16,7 @@ use utoipa::{
     Modify, OpenApi,
 };
 
-use crate::database::{permissions::Permission, users::DangerousUser};
+use crate::database::{permissions::Permission, users::User};
 
 #[derive(OpenApi)]
 #[openapi(paths(docs_yaml, docs_json), components(schemas()), modifiers(&SecurityAddon))]
@@ -88,8 +88,8 @@ fn generate_docs() -> Result<(), String> {
     )
 )]
 #[get("/docs/openapi.yaml")]
-fn docs_yaml(user: DangerousUser) -> Result<(ContentType, String), Status> {
-    if !user.has_permissions(&[Permission::DocsRead]) {
+fn docs_yaml(user: User) -> Result<(ContentType, String), Status> {
+    if !user.permissions.contains(&Permission::DocsRead) {
         Err(Status::Forbidden)?
     }
 
@@ -120,8 +120,8 @@ fn docs_yaml(user: DangerousUser) -> Result<(ContentType, String), Status> {
     )
 )]
 #[get("/docs/openapi.json")]
-fn docs_json(user: DangerousUser) -> Result<(ContentType, String), Status> {
-    if !user.has_permissions(&[Permission::DocsRead]) {
+fn docs_json(user: User) -> Result<(ContentType, String), Status> {
+    if !user.permissions.contains(&Permission::DocsRead) {
         Err(Status::Forbidden)?
     }
 

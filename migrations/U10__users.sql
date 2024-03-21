@@ -1,0 +1,3 @@
+CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY
+,   hash TEXT NOT NULL
+)

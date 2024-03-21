@@ -5,7 +5,7 @@ POST {{url}}/init
     "password": "BadPass123"
 }
 HTTP 200
-POST {{url}}/login
+POST {{url}}/token
 {
     "username": "SystemTest",
     "password": "BadPass123"

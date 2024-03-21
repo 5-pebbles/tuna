@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS permissions (
+    id TEXT PRIMARY KEY
+);
+

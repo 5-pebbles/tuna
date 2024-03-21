@@ -3,20 +3,14 @@ use rocket_sync_db_pools::rusqlite::{params, Error::QueryReturnedNoRows, ToSql};
 
 use crate::{
     api::errors::ApiError,
-    database::{
-        artists::Artist, database::Database, permissions::Permission, users::DangerousUser,
-    },
+    database::{artists::Artist, database::Database, permissions::Permission, users::User},
 };
 
 type Result<T> = std::result::Result<T, ApiError>;
 
 #[post("/artist", data = "<artist>")]
-async fn artist_write(
-    db: Database,
-    user: DangerousUser,
-    artist: Json<Artist>,
-) -> Result<Json<Artist>> {
-    if !user.has_permissions(&[Permission::ArtistWrite]) {
+async fn artist_write(db: Database, user: User, artist: Json<Artist>) -> Result<Json<Artist>> {
+    if !user.permissions.contains(&Permission::ArtistWrite) {
         Err(Status::Forbidden)?
     }
 
@@ -59,13 +53,13 @@ async fn artist_write(
 #[get("/artist?<id>&<name>&<genres>&<limit>")]
 async fn artist_get(
     db: Database,
-    user: DangerousUser,
+    user: User,
     id: Option<String>,
     name: Option<String>,
     genres: Option<Json<Vec<String>>>,
     limit: Option<u16>,
 ) -> Result<Json<Vec<Artist>>> {
-    if !user.has_permissions(&[Permission::ArtistRead]) {
+    if !user.permissions.contains(&Permission::ArtistRead) {
         Err(Status::Forbidden)?
     }
 
@@ -116,12 +110,14 @@ async fn artist_get(
 }
 
 #[delete("/artist/<id>")]
-async fn artist_delete(db: Database, user: DangerousUser, id: String) -> Result<()> {
-    if !user.has_permissions(&[Permission::ArtistDelete]) {
+async fn artist_delete(db: Database, user: User, id: String) -> Result<()> {
+    if !user.permissions.contains(&Permission::ArtistDelete) {
         Err(Status::Forbidden)?
     }
 
     db.run(move |conn| -> Result<()> {
+        conn.execute_batch("PRAGMA foreign_keys = ON;")?;
+
         let tx = conn.transaction()?;
 
         if let Err(QueryReturnedNoRows) = tx.query_row(
@@ -133,8 +129,6 @@ async fn artist_delete(db: Database, user: DangerousUser, id: String) -> Result<
         }
 
         tx.execute("DELETE FROM artists WHERE id = ?", params![id])?;
-        tx.execute("DELETE FROM artist_genres WHERE artist_id = ?", params![id])?;
-        tx.execute("DELETE FROM artist_albums WHERE artist_id = ?", params![id])?;
 
         tx.commit()?;
 

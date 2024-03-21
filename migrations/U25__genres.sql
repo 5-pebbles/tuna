@@ -1,0 +1,3 @@
+CREATE TABLE IF NOT EXISTS genres (
+    id TEXT PRIMARY KEY
+);

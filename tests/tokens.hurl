@@ -4,14 +4,14 @@ POST {{url}}/init
     "password": "BadPass123"
 }
 HTTP 200
-POST {{url}}/login
+POST {{url}}/token
 {
     "username": "SystemTest",
     "password": "BadPass123"
 }
 HTTP 200
 [Captures]
-rootSession: cookie "session"
+rootToken: cookie "token"
 POST {{url}}/invite
 {
     "code": "peppers",
@@ -25,43 +25,43 @@ POST {{url}}/invite/peppers
     "password": "BadPass123"
 }
 HTTP 200
-POST {{url}}/login
+POST {{url}}/token
 {
     "username": "SystemTest2",
     "password": "BadPass123"
 }
 # End Setup
 
-# delete for self without the sessiondelete permission
-DELETE {{url}}/session/SystemTest2
+# delete for self without the tokendelete permission
+DELETE {{url}}/token/SystemTest2
 HTTP 200
 
-DELETE {{url}}/session/SystemTest2
+DELETE {{url}}/token/SystemTest2
 HTTP 401
 
 
-# delete for other with sessiondelete permission
-POST {{url}}/login
+# delete for other with tokendelete permission
+POST {{url}}/token
 {
     "username": "SystemTest2",
     "password": "BadPass123"
 }
 HTTP 200
 [Captures]
-subSession: cookie "session"
+subToken: cookie "token"
 
-DELETE {{url}}/session/SystemTest2
-Cookie: session={{rootSession}}
+DELETE {{url}}/token/SystemTest2
+Cookie: token={{rootToken}}
 HTTP 200
 
-DELETE {{url}}/session/SystemTest2
-Cookie: session={{subSession}}
+DELETE {{url}}/token/SystemTest2
+Cookie: token={{subToken}}
 HTTP 401
 
 # Cleanup
 DELETE {{url}}/user/SystemTest2
-Cookie: session={{rootSession}}
+Cookie: token={{rootToken}}
 HTTP 200
 DELETE {{url}}/user/SystemTest
-Cookie: session={{rootSession}}
+Cookie: token={{rootToken}}
 HTTP 200

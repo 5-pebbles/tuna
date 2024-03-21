@@ -13,23 +13,24 @@ POST {{url}}/init
 HTTP 409
 
 
-POST {{url}}/login
+POST {{url}}/token
 {
     "username": "SystemTest",
     "password": "ReallyBadPass123"
 }
 HTTP 403
 [Asserts]
-cookie "session" not exists
+cookie "token" not exists
 
-POST {{url}}/login
+POST {{url}}/token
 {
     "username": "SystemTest",
     "password": "BadPass123"
 }
 HTTP 200
 [Asserts]
-cookie "session" exists
+jsonpath "$" exists
+cookie "token" exists
 
 
 GET {{url}}/user?username=notauser
@@ -55,7 +56,7 @@ jsonpath "$[0].username" == "SystemTest"
 jsonpath "$[0].permissions[0]" exists
 jsonpath "$[0].hash" not exists
 jsonpath "$[0].password" not exists
-jsonpath "$[0].sessions" not exists
+jsonpath "$[0].tokens" not exists
 
 DELETE {{url}}/user/SystemTest
 HTTP 200

@@ -3,14 +3,14 @@ use rocket_sync_db_pools::rusqlite::{params, Error::QueryReturnedNoRows, ToSql};
 
 use crate::{
     api::errors::ApiError,
-    database::{database::Database, permissions::Permission, tracks::Track, users::DangerousUser},
+    database::{database::Database, permissions::Permission, tracks::Track, users::User},
 };
 
 type Result<T> = std::result::Result<T, ApiError>;
 
 #[post("/track", data = "<track>")]
-async fn track_write(db: Database, user: DangerousUser, track: Json<Track>) -> Result<Json<Track>> {
-    if !user.has_permissions(&[Permission::TrackWrite]) {
+async fn track_write(db: Database, user: User, track: Json<Track>) -> Result<Json<Track>> {
+    if !user.permissions.contains(&Permission::TrackWrite) {
         Err(Status::Forbidden)?
     }
 
@@ -56,7 +56,7 @@ async fn track_write(db: Database, user: DangerousUser, track: Json<Track>) -> R
 #[get("/track?<id>&<name>&<maxrelease>&<minrelease>&<genres>&<albums>&<artists>&<lyrics>&<limit>")]
 async fn track_get(
     db: Database,
-    user: DangerousUser,
+    user: User,
     id: Option<String>,
     name: Option<String>,
     maxrelease: Option<u16>,
@@ -67,7 +67,7 @@ async fn track_get(
     lyrics: Option<String>,
     limit: Option<u16>,
 ) -> Result<Json<Vec<Track>>> {
-    if !user.has_permissions(&[Permission::TrackRead]) {
+    if !user.permissions.contains(&Permission::TrackRead) {
         Err(Status::Forbidden)?
     }
     db.run(move |conn| -> Result<Json<Vec<Track>>> {
@@ -164,12 +164,14 @@ async fn track_get(
 }
 
 #[delete("/track/<id>")]
-async fn track_delete(db: Database, user: DangerousUser, id: String) -> Result<()> {
-    if !user.has_permissions(&[Permission::TrackDelete]) {
+async fn track_delete(db: Database, user: User, id: String) -> Result<()> {
+    if !user.permissions.contains(&Permission::TrackDelete) {
         Err(Status::Forbidden)?
     }
 
     db.run(move |conn| -> Result<()> {
+        conn.execute_batch("PRAGMA foreign_keys = ON;")?;
+
         let tx = conn.transaction()?;
 
         if let Err(QueryReturnedNoRows) =
@@ -179,8 +181,6 @@ async fn track_delete(db: Database, user: DangerousUser, id: String) -> Result<(
         }
 
         tx.execute("DELETE FROM tracks WHERE id = ?", params![id])?;
-        tx.execute("DELETE FROM track_genres WHERE track_id = ?", params![id])?;
-        tx.execute("DELETE FROM album_tracks WHERE track_id = ?", params![id])?;
 
         tx.commit()?;
 
