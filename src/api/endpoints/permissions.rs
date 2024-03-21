@@ -7,14 +7,14 @@ use crate::{
         users::User,
     },
     error::ApiError,
-    database::Database,
+    database::MyDatabase,
 };
 
 type Result<T> = std::result::Result<T, ApiError>;
 
 #[post("/permissions/<username>", data = "<permissions_to_add>")]
 async fn permissions_add(
-    db: Database,
+    db: MyDatabase,
     user: User,
     username: String,
     permissions_to_add: Json<Vec<Permission>>,
@@ -59,7 +59,7 @@ async fn permissions_add(
 
 #[delete("/permissions/<username>", data = "<permissions_to_delete>")]
 async fn permissions_delete(
-    db: Database,
+    db: MyDatabase,
     user: User,
     username: String,
     permissions_to_delete: Json<Vec<Permission>>,

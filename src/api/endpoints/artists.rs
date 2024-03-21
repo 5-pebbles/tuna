@@ -3,14 +3,14 @@ use rocket_sync_db_pools::rusqlite::{params, Error::QueryReturnedNoRows, ToSql};
 
 use crate::{
     error::ApiError,
-    database::Database, 
+    database::MyDatabase, 
     api::data::{artists::Artist, permissions::Permission, users::User},
 };
 
 type Result<T> = std::result::Result<T, ApiError>;
 
 #[post("/artist", data = "<artist>")]
-async fn artist_write(db: Database, user: User, artist: Json<Artist>) -> Result<Json<Artist>> {
+async fn artist_write(db: MyDatabase, user: User, artist: Json<Artist>) -> Result<Json<Artist>> {
     if !user.permissions.contains(&Permission::ArtistWrite) {
         Err(Status::Forbidden)?
     }
@@ -53,7 +53,7 @@ async fn artist_write(db: Database, user: User, artist: Json<Artist>) -> Result<
 
 #[get("/artist?<id>&<name>&<genres>&<limit>")]
 async fn artist_get(
-    db: Database,
+    db: MyDatabase,
     user: User,
     id: Option<String>,
     name: Option<String>,
@@ -111,7 +111,7 @@ async fn artist_get(
 }
 
 #[delete("/artist/<id>")]
-async fn artist_delete(db: Database, user: User, id: String) -> Result<()> {
+async fn artist_delete(db: MyDatabase, user: User, id: String) -> Result<()> {
     if !user.permissions.contains(&Permission::ArtistDelete) {
         Err(Status::Forbidden)?
     }

@@ -8,14 +8,14 @@ use crate::{
         users::{DangerousLogin, User},
     },
     error::ApiError,
-    database::Database,
+    database::MyDatabase,
 };
 
 type Result<T> = std::result::Result<T, ApiError>;
 
 // creates a new account
 #[post("/invite/<code>", data = "<login>")]
-async fn invite_use(db: Database, code: String, login: Json<DangerousLogin>) -> Result<()> {
+async fn invite_use(db: MyDatabase, code: String, login: Json<DangerousLogin>) -> Result<()> {
     let login = login.into_inner();
 
     db.run(move |conn| -> Result<()> {
@@ -51,7 +51,7 @@ async fn invite_use(db: Database, code: String, login: Json<DangerousLogin>) -> 
 }
 
 #[post("/invite", data = "<invite>")]
-async fn invite_write(db: Database, user: User, invite: Json<Invite>) -> Result<Json<Invite>> {
+async fn invite_write(db: MyDatabase, user: User, invite: Json<Invite>) -> Result<Json<Invite>> {
     let mut invite = invite.into_inner();
     let mut required_permissions = invite.permissions.to_owned();
     required_permissions.push(Permission::InviteWrite);
@@ -115,7 +115,7 @@ async fn invite_write(db: Database, user: User, invite: Json<Invite>) -> Result<
 
 #[get("/invite?<code>&<permissions>&<maxremaining>&<minremaining>&<creator>&<limit>")]
 async fn invite_get(
-    db: Database,
+    db: MyDatabase,
     user: User,
     code: Option<String>,
     permissions: Option<Json<Vec<Permission>>>,
@@ -176,7 +176,7 @@ async fn invite_get(
 }
 
 #[delete("/invite/<code>")]
-async fn invite_delete(db: Database, user: User, code: String) -> Result<()> {
+async fn invite_delete(db: MyDatabase, user: User, code: String) -> Result<()> {
     if !user.permissions.contains(&Permission::InviteDelete) {
         return Err(Status::Forbidden)?;
     }

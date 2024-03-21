@@ -13,14 +13,14 @@ use crate::{
         users::{DangerousLogin, User},
     },
     error::ApiError,
-    database::Database,
+    database::MyDatabase,
 };
 
 type Result<T> = std::result::Result<T, ApiError>;
 
 #[post("/token", data = "<login>")]
 async fn token_write(
-    db: Database,
+    db: MyDatabase,
     jar: &CookieJar<'_>,
     login: Json<DangerousLogin>,
 ) -> Result<Json<String>> {
@@ -56,7 +56,7 @@ async fn token_write(
 }
 
 #[delete("/token/<username>")]
-async fn token_delete(db: Database, user: User, username: String) -> Result<()> {
+async fn token_delete(db: MyDatabase, user: User, username: String) -> Result<()> {
     if username != user.username && !user.permissions.contains(&Permission::TokenDelete) {
         Err(Status::Forbidden)?
     }

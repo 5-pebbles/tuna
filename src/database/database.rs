@@ -8,9 +8,9 @@ mod embedded {
 }
 
 #[database("db")]
-pub struct Database(MyConnection);
+pub struct MyDatabase(MyConnection);
 
-impl Database {
+impl MyDatabase {
     pub async fn migrations(&self) -> Result<(), Error> {
         self.run(|conn| -> Result<(), Error> {
             embedded::migrations::runner().run(&mut conn.0).unwrap();

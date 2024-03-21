@@ -4,7 +4,7 @@ use strum::IntoEnumIterator;
 
 use crate::{
     error::ApiError,
-    database::Database,
+    database::MyDatabase,
     api::data::{
         permissions::{Permission, permissions_from_row},
         users::{DangerousLogin, User},
@@ -15,7 +15,7 @@ type Result<T> = std::result::Result<T, ApiError>;
 
 // create the first user in the database
 #[post("/init", data = "<login>")]
-async fn user_init(db: Database, login: Json<DangerousLogin>) -> Result<()> {
+async fn user_init(db: MyDatabase, login: Json<DangerousLogin>) -> Result<()> {
     let login = login.into_inner();
 
     db.run(move |conn| -> Result<()> {
@@ -41,7 +41,7 @@ async fn user_init(db: Database, login: Json<DangerousLogin>) -> Result<()> {
 
 #[get("/user?<username>&<permissions>&<limit>")]
 async fn user_get(
-    db: Database,
+    db: MyDatabase,
     user: User,
     username: Option<String>,
     permissions: Option<Json<Vec<Permission>>>,
@@ -84,7 +84,7 @@ async fn user_get(
 }
 
 #[delete("/user/<username>")]
-async fn user_delete(db: Database, user: User, username: &str) -> Result<()> {
+async fn user_delete(db: MyDatabase, user: User, username: &str) -> Result<()> {
     let username = username.to_string(); // Fix Message: Using `String` as a parameter type is inefficient. Use `&str` instead.
     db.run(move |conn| -> Result<()> {
         conn.execute_batch("PRAGMA foreign_keys = ON;")?;

@@ -1,6 +1,6 @@
 use crate::{
     error::ApiError,
-    database::Database, 
+    database::MyDatabase, 
     api::data::{permissions::Permission, users::User},
 };
 use rocket::{fairing::AdHoc, http::Status, serde::json::Json};
@@ -9,7 +9,7 @@ use rocket_sync_db_pools::rusqlite::{params, Error::QueryReturnedNoRows, ToSql};
 type Result<T> = std::result::Result<T, ApiError>;
 
 #[post("/genre/<genre>")]
-async fn genre_write(db: Database, user: User, genre: String) -> Result<Json<String>> {
+async fn genre_write(db: MyDatabase, user: User, genre: String) -> Result<Json<String>> {
     if !user.permissions.contains(&Permission::GenreWrite) {
         Err(Status::Forbidden)?
     }
@@ -23,7 +23,7 @@ async fn genre_write(db: Database, user: User, genre: String) -> Result<Json<Str
 
 #[get("/genre?<genre>&<limit>")]
 async fn genre_get(
-    db: Database,
+    db: MyDatabase,
     user: User,
     genre: Option<String>,
     limit: Option<u16>,
@@ -57,7 +57,7 @@ async fn genre_get(
 }
 
 #[delete("/genre/<genre>")]
-async fn genre_delete(db: Database, user: User, genre: String) -> Result<()> {
+async fn genre_delete(db: MyDatabase, user: User, genre: String) -> Result<()> {
     if !user.permissions.contains(&Permission::GenreDelete) {
         Err(Status::Forbidden)?
     }
