@@ -2,8 +2,9 @@ use rocket::{fairing::AdHoc, http::Status, serde::json::Json};
 use rocket_sync_db_pools::rusqlite::{params, Error::QueryReturnedNoRows, ToSql};
 
 use crate::{
-    api::errors::ApiError,
-    database::{albums::Album, database::Database, permissions::Permission, users::User},
+    api::data::{albums::Album, permissions::Permission, users::User},
+    error::ApiError,
+    database::Database,
 };
 
 type Result<T> = std::result::Result<T, ApiError>;

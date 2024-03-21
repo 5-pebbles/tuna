@@ -4,8 +4,9 @@ extern crate rocket;
 use std::{fs, path::Path};
 
 mod api;
-mod docs;
 mod database;
+mod docs;
+mod error;
 
 #[get("/")]
 fn index() -> &'static str {

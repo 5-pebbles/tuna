@@ -16,7 +16,7 @@ use utoipa::{
     Modify, OpenApi,
 };
 
-use crate::database::{permissions::Permission, users::User};
+use crate::api::data::{permissions::Permission, users::User};
 
 #[derive(OpenApi)]
 #[openapi(paths(docs_yaml, docs_json), components(schemas()), modifiers(&SecurityAddon))]

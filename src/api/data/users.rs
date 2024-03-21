@@ -8,11 +8,9 @@ use rocket::{
 use rocket_sync_db_pools::rusqlite::{params, params_from_iter, Error, Row, Transaction};
 
 use crate::{
-    api::errors::ApiError,
-    database::{
-        permissions::{permissions_from_row, Permission},
-        Database,
-    },
+    api::data::permissions::{permissions_from_row, Permission},
+    error::ApiError,
+    database::Database,
 };
 
 #[derive(Deserialize)]
@@ -35,7 +33,7 @@ impl DangerousLogin {
 
         let permissions = permissions_iter.into_iter().collect::<Vec<_>>();
         if permissions.is_empty() {
-            return Ok(())
+            return Ok(());
         }
 
         let placeholders = permissions
