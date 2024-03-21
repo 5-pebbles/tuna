@@ -1,8 +1,6 @@
 use rocket::{fairing::AdHoc, http::Status, serde::json::Json};
 use rocket_sync_db_pools::rusqlite::{params, params_from_iter};
 
-use std::str::FromStr;
-
 use crate::{
     api::errors::ApiError,
     database::{database::Database, permissions::{Permission, permissions_from_row}, users::User},
