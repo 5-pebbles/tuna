@@ -8,12 +8,12 @@ use rocket_sync_db_pools::rusqlite::params;
 use uuid::Uuid;
 
 use crate::{
-    api::errors::ApiError,
-    database::{
-        database::Database,
+    api::data::{
         permissions::Permission,
         users::{DangerousLogin, User},
     },
+    api::errors::ApiError,
+    database::Database,
 };
 
 type Result<T> = std::result::Result<T, ApiError>;
@@ -64,7 +64,8 @@ async fn token_delete(db: Database, user: User, username: String) -> Result<()> 
     db.run(move |conn| {
         conn.execute_batch("PRAGMA foreign_keys = ON;")?;
         conn.execute("DELETE FROM tokens WHERE username = ?", params![username])
-    }).await?;
+    })
+    .await?;
     Ok(())
 }
 

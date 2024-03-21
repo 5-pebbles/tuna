@@ -1,4 +1,4 @@
-use crate::database::permissions::Permission;
+use crate::api::data::permissions::Permission;
 use strum::IntoEnumIterator;
 
 pub fn migration() -> String {

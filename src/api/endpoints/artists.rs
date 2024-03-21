@@ -3,7 +3,8 @@ use rocket_sync_db_pools::rusqlite::{params, Error::QueryReturnedNoRows, ToSql};
 
 use crate::{
     api::errors::ApiError,
-    database::{artists::Artist, database::Database, permissions::Permission, users::User},
+    database::Database, 
+    api::data::{artists::Artist, permissions::Permission, users::User},
 };
 
 type Result<T> = std::result::Result<T, ApiError>;

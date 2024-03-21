@@ -2,13 +2,13 @@ use rocket::{fairing::AdHoc, http::Status, serde::json::Json};
 use rocket_sync_db_pools::rusqlite::{params, params_from_iter, ToSql};
 
 use crate::{
-    api::errors::ApiError,
-    database::{
-        database::Database,
+    api::data::{
         invites::Invite,
         permissions::{permissions_from_row, Permission},
         users::{DangerousLogin, User},
     },
+    api::errors::ApiError,
+    database::Database,
 };
 
 type Result<T> = std::result::Result<T, ApiError>;
@@ -85,7 +85,7 @@ async fn invite_write(db: Database, user: User, invite: Json<Invite>) -> Result<
         if invite.permissions.is_empty() {
             // don't forget to commit, I mean its a bit late but...
             tx.commit()?;
-            return Ok(Json(invite))
+            return Ok(Json(invite));
         }
 
         let sql = format!(

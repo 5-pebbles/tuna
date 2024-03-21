@@ -1,4 +1,4 @@
-use crate::database::permissions::{permissions_from_row, Permission};
+use crate::api::data::permissions::{permissions_from_row, Permission};
 use rocket::serde::{Deserialize, Serialize};
 use rocket_sync_db_pools::rusqlite::{Error, Row};
 

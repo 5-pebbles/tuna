@@ -1,6 +1,7 @@
 use crate::{
     api::errors::ApiError,
-    database::{database::Database, permissions::Permission, users::User},
+    database::Database, 
+    api::data::{permissions::Permission, users::User},
 };
 use rocket::{fairing::AdHoc, http::Status, serde::json::Json};
 use rocket_sync_db_pools::rusqlite::{params, Error::QueryReturnedNoRows, ToSql};

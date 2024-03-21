@@ -4,8 +4,8 @@ use strum::IntoEnumIterator;
 
 use crate::{
     api::errors::ApiError,
-    database::{
-        database::Database,
+    database::Database,
+    api::data::{
         permissions::{Permission, permissions_from_row},
         users::{DangerousLogin, User},
     },
