@@ -12,7 +12,7 @@ use crate::{
         permissions::Permission,
         users::{DangerousLogin, User},
     },
-    api::errors::ApiError,
+    error::ApiError,
     database::Database,
 };
 

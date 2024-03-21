@@ -9,7 +9,7 @@ use rocket_sync_db_pools::rusqlite::{params, params_from_iter, Error, Row, Trans
 
 use crate::{
     api::data::permissions::{permissions_from_row, Permission},
-    api::errors::ApiError,
+    error::ApiError,
     database::Database,
 };
 

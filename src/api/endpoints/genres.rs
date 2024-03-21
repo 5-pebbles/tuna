@@ -1,5 +1,5 @@
 use crate::{
-    api::errors::ApiError,
+    error::ApiError,
     database::Database, 
     api::data::{permissions::Permission, users::User},
 };

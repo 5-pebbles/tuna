@@ -7,7 +7,7 @@ use crate::{
         permissions::{permissions_from_row, Permission},
         users::{DangerousLogin, User},
     },
-    api::errors::ApiError,
+    error::ApiError,
     database::Database,
 };
 

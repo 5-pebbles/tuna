@@ -3,7 +3,7 @@ use rocket_sync_db_pools::rusqlite::{params, params_from_iter};
 use strum::IntoEnumIterator;
 
 use crate::{
-    api::errors::ApiError,
+    error::ApiError,
     database::Database,
     api::data::{
         permissions::{Permission, permissions_from_row},

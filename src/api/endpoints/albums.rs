@@ -3,7 +3,7 @@ use rocket_sync_db_pools::rusqlite::{params, Error::QueryReturnedNoRows, ToSql};
 
 use crate::{
     api::data::{albums::Album, permissions::Permission, users::User},
-    api::errors::ApiError,
+    error::ApiError,
     database::Database,
 };
 
