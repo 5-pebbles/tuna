@@ -12,8 +12,8 @@ use crate::{
         permissions::Permission,
         users::{DangerousLogin, User},
     },
-    error::ApiError,
     database::MyDatabase,
+    error::ApiError,
 };
 
 type Result<T> = std::result::Result<T, ApiError>;
@@ -61,11 +61,8 @@ async fn token_delete(db: MyDatabase, user: User, username: String) -> Result<()
         Err(Status::Forbidden)?
     }
 
-    db.run(move |conn| {
-        conn.execute_batch("PRAGMA foreign_keys = ON;")?;
-        conn.execute("DELETE FROM tokens WHERE username = ?", params![username])
-    })
-    .await?;
+    db.run(move |conn| conn.execute("DELETE FROM tokens WHERE username = ?", params![username]))
+        .await?;
     Ok(())
 }
 

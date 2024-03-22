@@ -24,11 +24,11 @@ impl r2d2::ManageConnection for MyPoolManager {
     fn connect(&self) -> Result<MyConnection, Error> {
         rusqlite::Connection::open_with_flags(&self.path, self.flags)
             .map_err(Into::into)
-            .and_then(|c| match self.on_init {
-                None => Ok(MyConnection(c)),
+            .and_then(|rusqlite_connection| match self.on_init {
+                None => Ok(MyConnection(rusqlite_connection)),
                 Some(ref on_init) => {
-                    let mut my_conn = MyConnection(c);
-                    on_init(&mut my_conn).map(|_| my_conn)
+                    let mut my_connection = MyConnection(rusqlite_connection);
+                    on_init(&mut my_connection).map(|_| my_connection)
                 }
             })
     }

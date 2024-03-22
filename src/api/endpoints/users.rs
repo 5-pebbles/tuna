@@ -87,8 +87,6 @@ async fn user_get(
 async fn user_delete(db: MyDatabase, user: User, username: &str) -> Result<()> {
     let username = username.to_string(); // Fix Message: Using `String` as a parameter type is inefficient. Use `&str` instead.
     db.run(move |conn| -> Result<()> {
-        conn.execute_batch("PRAGMA foreign_keys = ON;")?;
-
         let tx = conn.transaction()?;
 
         if username != user.username {

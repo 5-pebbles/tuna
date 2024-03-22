@@ -117,8 +117,6 @@ async fn artist_delete(db: MyDatabase, user: User, id: String) -> Result<()> {
     }
 
     db.run(move |conn| -> Result<()> {
-        conn.execute_batch("PRAGMA foreign_keys = ON;")?;
-
         let tx = conn.transaction()?;
 
         if let Err(QueryReturnedNoRows) = tx.query_row(

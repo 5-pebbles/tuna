@@ -67,8 +67,6 @@ async fn permissions_delete(
     let permissions_to_delete = permissions_to_delete.into_inner();
 
     db.run(move |conn| {
-        conn.execute_batch("PRAGMA foreign_keys = ON;")?;
-
         let tx = conn.transaction()?;
 
         let mut required_permissions = tx.query_row(

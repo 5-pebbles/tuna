@@ -7,8 +7,8 @@ use crate::{
         permissions::{permissions_from_row, Permission},
         users::{DangerousLogin, User},
     },
-    error::ApiError,
     database::MyDatabase,
+    error::ApiError,
 };
 
 type Result<T> = std::result::Result<T, ApiError>;
@@ -19,8 +19,6 @@ async fn invite_use(db: MyDatabase, code: String, login: Json<DangerousLogin>) -
     let login = login.into_inner();
 
     db.run(move |conn| -> Result<()> {
-        conn.execute_batch("PRAGMA foreign_keys = ON;")?; // delete run when the invite remaining = 0
-
         let tx = conn.transaction()?;
 
         let (remaining, permissions): (u16, Vec<Permission>) = tx
@@ -65,7 +63,6 @@ async fn invite_write(db: MyDatabase, user: User, invite: Json<Invite>) -> Resul
 
     invite.creator = user.username;
     db.run(move |conn| -> Result<Json<Invite>> {
-        conn.execute_batch("PRAGMA foreign_keys = ON;")?;
         let tx = conn.transaction()?;
 
         if tx.query_row(
@@ -181,11 +178,8 @@ async fn invite_delete(db: MyDatabase, user: User, code: String) -> Result<()> {
         return Err(Status::Forbidden)?;
     }
 
-    db.run(move |conn| {
-        conn.execute_batch("PRAGMA foreign_keys = ON;")?;
-        conn.execute("DELETE FROM invites WHERE code = ?", params![code])
-    })
-    .await?;
+    db.run(move |conn| conn.execute("DELETE FROM invites WHERE code = ?", params![code]))
+        .await?;
     Ok(())
 }
 
