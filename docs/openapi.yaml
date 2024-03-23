@@ -51,6 +51,21 @@ paths:
       - permissions:
         - DocsRead
 components:
+  schemas:
+    DangerousLogin:
+      type: object
+      required:
+      - username
+      - password
+      properties:
+        password:
+          type: string
+          description: Your password
+          example: jnoM76raK
+        username:
+          type: string
+          description: Your username
+          example: 5-pebbles
   securitySchemes:
     api_key:
       type: apiKey

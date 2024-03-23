@@ -6,17 +6,22 @@ use rocket::{
     request::{self, FromRequest, Request},
 };
 use rocket_sync_db_pools::rusqlite::{params, params_from_iter, Error, Row, Transaction};
+use utoipa::{ToSchema, schema};
 
 use crate::{
     api::data::permissions::{permissions_from_row, Permission},
-    error::ApiError,
     database::MyDatabase,
+    error::ApiError,
 };
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ToSchema)]
 #[serde(crate = "rocket::serde")]
 pub struct DangerousLogin {
+    /// Your username
+    #[schema(example = "5-pebbles")]
     pub username: String,
+    /// Your password
+    #[schema(example = "jnoM76raK")]
     pub password: String,
 }
 
