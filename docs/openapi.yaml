@@ -85,12 +85,46 @@ paths:
       security:
       - permissions:
         - PermissionAdd
+    delete:
+      tags:
+      - permissions
+      summary: Revoke a list of permissions from a user
+      description: |-
+        Revoke a list of permissions from a user
+
+        Requires: `PermissionDelete` & all permissions of the user who's permissions are being revoked
+      operationId: permission_delete
+      parameters:
+      - name: username
+        in: path
+        description: The username of the user who's permissions you would like to revoke
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: A list of permissions to Revoke
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Json'
+            example:
+            - DocsRead
+            - PermissionDelete
+        required: true
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Forbidden you do not have the required permissions
+      security:
+      - permissions:
+        - PermissionDelete
   /token:
     post:
       tags:
       - tokens
-      summary: Creates a login token
-      description: Creates a login token
+      summary: Creates a login token which can be used to access other endpoints
+      description: Creates a login token which can be used to access other endpoints
       operationId: token_write
       requestBody:
         description: Your username & password
@@ -122,7 +156,7 @@ paths:
       parameters:
       - name: username
         in: path
-        description: The username of the user whos tokens you would like to delete
+        description: The username of the user who's tokens you would like to delete
         required: true
         schema:
           type: string

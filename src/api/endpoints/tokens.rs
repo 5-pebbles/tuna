@@ -18,7 +18,7 @@ use crate::{
 
 type Result<T> = std::result::Result<T, ApiError>;
 
-/// Creates a login token
+/// Creates a login token which can be used to access other endpoints
 #[utoipa::path(
     request_body(content = DangerousLogin, description = "Your username & password"),
     responses(
@@ -83,11 +83,11 @@ async fn token_write(
         status = 403,
         description = "Forbidden requires permission `TokenDelete`",
     )),
+    params(
+        ("username" = String, description = "The username of the user who's tokens you would like to delete")
+    ),
     security(
         ("permissions" = ["TokenDelete"])
-    ),
-    params(
-        ("username" = String, description = "The username of the user whos tokens you would like to delete")
     ),
 )]
 #[delete("/token/<username>")]

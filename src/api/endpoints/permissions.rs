@@ -82,6 +82,31 @@ async fn permission_add(
     Ok(())
 }
 
+/// Revoke a list of permissions from a user
+///
+/// Requires: `PermissionDelete` & all permissions of the user who's permissions are being revoked
+#[utoipa::path(
+    request_body(
+        content = Json<Vec<Permission>>,
+        description = "A list of permissions to Revoke",
+        example = json!([Permission::DocsRead, Permission::PermissionDelete]),
+    ),
+    responses(
+    (
+        status = 200,
+        description = "Success",
+    ),
+    (
+        status = 403,
+        description = "Forbidden you do not have the required permissions",
+    )),
+    params(
+        ("username" = String, description = "The username of the user who's permissions you would like to revoke")
+    ),
+    security(
+        ("permissions" = ["PermissionDelete"])
+    ),
+)]
 #[delete("/permissions/<username>", data = "<permissions_to_delete>")]
 async fn permission_delete(
     db: MyDatabase,
