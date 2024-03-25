@@ -12,8 +12,33 @@ use crate::{
 
 type Result<T> = std::result::Result<T, ApiError>;
 
+/// Grant another user a list of permissions
+///
+/// Requires: `PermissionAdd` as well as all permissions you intend to grant
+#[utoipa::path(
+    request_body(
+        content = Json<Vec<Permission>>,
+        description = "A list of permissions to grant",
+        example = json!([Permission::DocsRead, Permission::PermissionAdd]),
+    ),
+    responses(
+    (
+        status = 200,
+        description = "Success",
+    ),
+    (
+        status = 403,
+        description = "Forbidden you do not have the required permissions",
+    )),
+    params(
+        ("username" = String, description = "The username of the user you would like to grant permissions to")
+    ),
+    security(
+        ("permissions" = ["PermissionAdd"])
+    ),
+)]
 #[post("/permissions/<username>", data = "<permissions_to_add>")]
-async fn permissions_add(
+async fn permission_add(
     db: MyDatabase,
     user: User,
     username: String,
@@ -58,7 +83,7 @@ async fn permissions_add(
 }
 
 #[delete("/permissions/<username>", data = "<permissions_to_delete>")]
-async fn permissions_delete(
+async fn permission_delete(
     db: MyDatabase,
     user: User,
     username: String,
@@ -115,6 +140,6 @@ async fn permissions_delete(
 
 pub fn fairing() -> AdHoc {
     AdHoc::on_ignite("API Permissions EndPoints", |rocket| async {
-        rocket.mount("/", routes![permissions_add, permissions_delete,])
+        rocket.mount("/", routes![permission_add, permission_delete,])
     })
 }

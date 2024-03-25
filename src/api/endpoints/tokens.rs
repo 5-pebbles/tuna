@@ -74,6 +74,15 @@ async fn token_write(
 ///
 /// Requires: `TokenDelete` permission to delete another users tokens, but you are free to delete your own
 #[utoipa::path(
+    responses(
+    (
+        status = 200,
+        description = "Success",
+    ),
+    (
+        status = 403,
+        description = "Forbidden requires permission `TokenDelete`",
+    )),
     security(
         ("permissions" = ["TokenDelete"])
     ),

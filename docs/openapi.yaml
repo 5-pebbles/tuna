@@ -50,6 +50,41 @@ paths:
       security:
       - permissions:
         - DocsRead
+  /permissions/{username}:
+    post:
+      tags:
+      - permissions
+      summary: Grant another user a list of permissions
+      description: |-
+        Grant another user a list of permissions
+
+        Requires: `PermissionAdd` as well as all permissions you intend to grant
+      operationId: permission_add
+      parameters:
+      - name: username
+        in: path
+        description: The username of the user you would like to grant permissions to
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: A list of permissions to grant
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Json'
+            example:
+            - DocsRead
+            - PermissionAdd
+        required: true
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Forbidden you do not have the required permissions
+      security:
+      - permissions:
+        - PermissionAdd
   /token:
     post:
       tags:
@@ -87,10 +122,18 @@ paths:
       parameters:
       - name: username
         in: path
+        description: The username of the user whos tokens you would like to delete
         required: true
         schema:
           type: string
-      responses: {}
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Forbidden requires permission `TokenDelete`
+      security:
+      - permissions:
+        - TokenDelete
 components:
   schemas:
     DangerousLogin:

@@ -21,7 +21,7 @@ use crate::api::{
         permissions::Permission,
         users::{DangerousLogin, User},
     },
-    endpoints::tokens,
+    endpoints::{tokens, permissions},
 };
 
 #[derive(OpenApi)]
@@ -30,6 +30,7 @@ use crate::api::{
         docs_json,
         tokens::token_write,
         tokens::token_delete,
+        permissions::permission_add,
     ), components(schemas(DangerousLogin)), modifiers(&SecurityAddon))]
 struct ApiDoc;
 
