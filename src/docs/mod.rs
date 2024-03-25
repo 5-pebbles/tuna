@@ -16,10 +16,16 @@ use utoipa::{
     Modify, OpenApi,
 };
 
-use crate::api::data::{permissions::Permission, users::{User, DangerousLogin}};
+use crate::api::{
+    data::{
+        permissions::Permission,
+        users::{DangerousLogin, User},
+    },
+    endpoints::tokens,
+};
 
 #[derive(OpenApi)]
-#[openapi(paths(docs_yaml, docs_json), components(schemas(DangerousLogin)), modifiers(&SecurityAddon))]
+#[openapi(paths(docs_yaml, docs_json, tokens::token_write), components(schemas(DangerousLogin)), modifiers(&SecurityAddon))]
 struct ApiDoc;
 
 struct SecurityAddon;

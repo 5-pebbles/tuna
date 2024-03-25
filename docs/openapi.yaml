@@ -50,10 +50,35 @@ paths:
       security:
       - permissions:
         - DocsRead
+  /token:
+    post:
+      tags:
+      - tokens
+      summary: Creates a login token
+      description: Creates a login token
+      operationId: token_write
+      requestBody:
+        description: Your username & password
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DangerousLogin'
+        required: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Json'
+              example: 479f879a-db6d-47e9-a094-124cd0ad648f
+        '403':
+          description: Forbidden invalid username and/or password
 components:
   schemas:
     DangerousLogin:
       type: object
+      description: The login information for a user
       required:
       - username
       - password

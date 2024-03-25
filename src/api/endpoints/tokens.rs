@@ -18,6 +18,21 @@ use crate::{
 
 type Result<T> = std::result::Result<T, ApiError>;
 
+/// Creates a login token
+#[utoipa::path(
+    request_body(content = DangerousLogin, description = "Your username & password"),
+    responses(
+    (
+        status = 200,
+        description = "Success",
+        body = Json<String>,
+        example = json!(String::from("479f879a-db6d-47e9-a094-124cd0ad648f")),
+    ),
+    (
+        status = 403,
+        description = "Forbidden invalid username and/or password",
+    )),
+)]
 #[post("/token", data = "<login>")]
 async fn token_write(
     db: MyDatabase,

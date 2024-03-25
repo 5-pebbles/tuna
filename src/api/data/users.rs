@@ -14,6 +14,7 @@ use crate::{
     error::ApiError,
 };
 
+/// The login information for a user
 #[derive(Deserialize, ToSchema)]
 #[serde(crate = "rocket::serde")]
 pub struct DangerousLogin {
