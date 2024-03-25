@@ -70,6 +70,17 @@ async fn token_write(
     Ok(Json(token))
 }
 
+/// Delete all login tokens for a given user
+///
+/// Requires: `TokenDelete` permission to delete another users tokens, but you are free to delete your own
+#[utoipa::path(
+    security(
+        ("permissions" = ["TokenDelete"])
+    ),
+    params(
+        ("username" = String, description = "The username of the user whos tokens you would like to delete")
+    ),
+)]
 #[delete("/token/<username>")]
 async fn token_delete(db: MyDatabase, user: User, username: String) -> Result<()> {
     if username != user.username && !user.permissions.contains(&Permission::TokenDelete) {

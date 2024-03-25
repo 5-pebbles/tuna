@@ -109,6 +109,27 @@
           }
         }
       }
+    },
+    "/token/{username}": {
+      "delete": {
+        "tags": [
+          "tokens"
+        ],
+        "summary": "Delete all login tokens for a given user",
+        "description": "Delete all login tokens for a given user\n\nRequires: `TokenDelete` permission to delete another users tokens, but you are free to delete your own",
+        "operationId": "token_delete",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {}
+      }
     }
   },
   "components": {

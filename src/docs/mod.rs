@@ -25,7 +25,12 @@ use crate::api::{
 };
 
 #[derive(OpenApi)]
-#[openapi(paths(docs_yaml, docs_json, tokens::token_write), components(schemas(DangerousLogin)), modifiers(&SecurityAddon))]
+#[openapi(paths(
+        docs_yaml,
+        docs_json,
+        tokens::token_write,
+        tokens::token_delete,
+    ), components(schemas(DangerousLogin)), modifiers(&SecurityAddon))]
 struct ApiDoc;
 
 struct SecurityAddon;
