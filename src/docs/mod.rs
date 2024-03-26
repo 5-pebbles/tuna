@@ -32,6 +32,7 @@ use crate::api::{
         tokens::token_delete,
         permissions::permission_add,
         permissions::permission_delete,
+        genres::genre_write,
         genres::genre_delete,
     ), components(schemas(DangerousLogin)), modifiers(&SecurityAddon))]
 struct ApiDoc;

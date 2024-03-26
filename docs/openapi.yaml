@@ -51,6 +51,36 @@ paths:
       - permissions:
         - DocsRead
   /genre/{genre}:
+    post:
+      tags:
+      - genres
+      summary: Writes a new genre to the database.
+      description: |-
+        Writes a new genre to the database.
+
+        Requires: `GenreWrite` permission.
+      operationId: genre_write
+      parameters:
+      - name: genre
+        in: path
+        description: The name of the genre to be written
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Json'
+        '403':
+          description: Forbidden requires permission `GenreWrite`
+        '409':
+          description: Conflict genre already exists
+      security:
+      - permissions:
+        - GenreWrite
     delete:
       tags:
       - genres

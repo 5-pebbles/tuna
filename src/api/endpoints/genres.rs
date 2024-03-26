@@ -8,6 +8,22 @@ use rocket_sync_db_pools::rusqlite::{params, Error::QueryReturnedNoRows, ToSql};
 
 type Result<T> = std::result::Result<T, ApiError>;
 
+/// Writes a new genre to the database.
+///
+/// Requires: `GenreWrite` permission.
+#[utoipa::path(
+    responses(
+        (status = 200, description = "Success", body = Json<String>),
+        (status = 409, description = "Conflict genre already exists"),
+        (status = 403, description = "Forbidden requires permission `GenreWrite`"),
+    ),
+    params(
+        ("genre" = String, description = "The name of the genre to be written")
+    ),
+    security(
+        ("permissions" = ["GenreWrite"])
+    ),
+)]
 #[post("/genre/<genre>")]
 async fn genre_write(db: MyDatabase, user: User, genre: String) -> Result<Json<String>> {
     if !user.permissions.contains(&Permission::GenreWrite) {
