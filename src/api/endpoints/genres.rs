@@ -56,6 +56,22 @@ async fn genre_get(
     .await
 }
 
+/// Delete a genre from the database.
+///
+/// Requires: `GenreDelete` permission.
+#[utoipa::path(
+    responses(
+        (status = 200, description = "Success"),
+        (status = 403, description = "Forbidden requires permission `GenreDelete`"),
+        (status = 404, description = "Not Found genre does not exist"),
+    ),
+    params(
+        ("genre" = String, description = "The genre to be deleted")
+    ),
+    security(
+        ("permissions" = ["GenreDelete"])
+    ),
+)]
 #[delete("/genre/<genre>")]
 async fn genre_delete(db: MyDatabase, user: User, genre: String) -> Result<()> {
     if !user.permissions.contains(&Permission::GenreDelete) {

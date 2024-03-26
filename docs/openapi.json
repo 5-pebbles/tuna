@@ -73,6 +73,45 @@
         ]
       }
     },
+    "/genre/{genre}": {
+      "delete": {
+        "tags": [
+          "genres"
+        ],
+        "summary": "Delete a genre from the database.",
+        "description": "Delete a genre from the database.\n\nRequires: `GenreDelete` permission.",
+        "operationId": "genre_delete",
+        "parameters": [
+          {
+            "name": "genre",
+            "in": "path",
+            "description": "The genre to be deleted",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "403": {
+            "description": "Forbidden requires permission `GenreDelete`"
+          },
+          "404": {
+            "description": "Not Found genre does not exist"
+          }
+        },
+        "security": [
+          {
+            "permissions": [
+              "GenreDelete"
+            ]
+          }
+        ]
+      }
+    },
     "/permissions/{username}": {
       "post": {
         "tags": [
