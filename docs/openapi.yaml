@@ -62,29 +62,15 @@ paths:
       operationId: genre_get
       parameters:
       - name: genre
-        in: path
-        description: The the name/part of the name of a genre
-        required: true
-        schema:
-          type: string
-          nullable: true
-      - name: limit
-        in: path
-        description: The maximum number of results to return
-        required: true
-        schema:
-          type: integer
-          format: int32
-          nullable: true
-          minimum: 0
-      - name: genre
         in: query
+        description: The the name/part of the name of a genre
         required: false
         schema:
           type: string
           nullable: true
       - name: limit
         in: query
+        description: The maximum number of results to return
         required: false
         schema:
           type: integer

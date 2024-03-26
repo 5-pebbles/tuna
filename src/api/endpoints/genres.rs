@@ -46,8 +46,8 @@ async fn genre_write(db: MyDatabase, user: User, genre: String) -> Result<Json<S
         (status = 403, description = "Forbidden requires permission `GenreRead`"),
     ),
     params(
-        ("genre" = Option<String>, description = "The the name/part of the name of a genre"),
-        ("limit" = Option<u16>, description = "The maximum number of results to return")
+        ("genre", Query, description = "The the name/part of the name of a genre"),
+        ("limit", Query, description = "The maximum number of results to return")
     ),
     security(
         ("permissions" = ["GenreRead"])
