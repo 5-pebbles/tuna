@@ -163,6 +163,33 @@ paths:
       security:
       - permissions:
         - GenreDelete
+  /invite:
+    post:
+      tags:
+      - invites
+      summary: Creates a new invite code.
+      description: |-
+        Creates a new invite code.
+
+        Requires the `InviteWrite` & all permissions of the new invite.
+      operationId: invite_write
+      requestBody:
+        description: The invite information
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Json'
+        required: true
+      responses:
+        '200':
+          description: Successfully created invite
+        '403':
+          description: You do not have the required permissions to create the invite
+        '409':
+          description: Invite code already exists
+      security:
+      - permissions:
+        - InviteWrite
   /invite/{code}:
     post:
       tags:

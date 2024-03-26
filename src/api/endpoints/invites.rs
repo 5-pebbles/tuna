@@ -61,6 +61,23 @@ async fn invite_use(db: MyDatabase, code: String, login: Json<DangerousLogin>) -
     .await
 }
 
+/// Creates a new invite code.
+///
+/// Requires the `InviteWrite` & all permissions of the new invite.
+#[utoipa::path(
+    request_body(
+        description = "The invite information",
+        content = Json<Invite>,
+    ),
+    responses(
+        (status = 200, description = "Successfully created invite"),
+        (status = 403, description = "You do not have the required permissions to create the invite"),
+        (status = 409, description = "Invite code already exists"),
+    ),
+    security(
+        ("permissions" = ["InviteWrite"]),
+    ),
+)]
 #[post("/invite", data = "<invite>")]
 async fn invite_write(db: MyDatabase, user: User, invite: Json<Invite>) -> Result<Json<Invite>> {
     let mut invite = invite.into_inner();
