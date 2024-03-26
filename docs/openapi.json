@@ -395,6 +395,40 @@
             "description": "Invite code not found"
           }
         }
+      },
+      "delete": {
+        "tags": [
+          "invites"
+        ],
+        "summary": "Deletes an invite code.",
+        "description": "Deletes an invite code.\n\nRequires the `InviteDelete` permission.",
+        "operationId": "invite_delete",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "description": "The invite code to delete",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "403": {
+            "description": "Forbidden requires permission `InviteDelete`"
+          }
+        },
+        "security": [
+          {
+            "permissions": [
+              "InviteDelete"
+            ]
+          }
+        ]
       }
     },
     "/permissions/{username}": {

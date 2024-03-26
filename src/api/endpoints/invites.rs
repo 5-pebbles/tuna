@@ -222,6 +222,21 @@ async fn invite_get(
     .await
 }
 
+/// Deletes an invite code.
+///
+/// Requires the `InviteDelete` permission.
+#[utoipa::path(
+    responses(
+        (status = 200, description = "Success"),
+        (status = 403, description = "Forbidden requires permission `InviteDelete`"),
+    ),
+    params(
+        ("code", description = "The invite code to delete"),
+    ),
+    security(
+        ("permissions" = ["InviteDelete"]),
+    ),
+)]
 #[delete("/invite/<code>")]
 async fn invite_delete(db: MyDatabase, user: User, code: String) -> Result<()> {
     if !user.permissions.contains(&Permission::InviteDelete) {

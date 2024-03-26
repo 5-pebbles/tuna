@@ -35,6 +35,7 @@ use crate::api::{
         invites::invite_use,
         invites::invite_write,
         invites::invite_get,
+        invites::invite_delete,
         genres::genre_write,
         genres::genre_get,
         genres::genre_delete,
