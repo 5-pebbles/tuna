@@ -1,7 +1,7 @@
 use crate::{
-    error::ApiError,
-    database::MyDatabase, 
     api::data::{permissions::Permission, users::User},
+    database::MyDatabase,
+    error::ApiError,
 };
 use rocket::{fairing::AdHoc, http::Status, serde::json::Json};
 use rocket_sync_db_pools::rusqlite::{params, Error::QueryReturnedNoRows, ToSql};
@@ -37,6 +37,22 @@ async fn genre_write(db: MyDatabase, user: User, genre: String) -> Result<Json<S
     .await
 }
 
+/// Search for a genre in the database.
+///
+/// Requires: `GenreRead` permission.
+#[utoipa::path(
+    responses(
+        (status = 200, description = "Success", body = Json<Vec<String>>, example = json!(["indie rock", "indie pop"])),
+        (status = 403, description = "Forbidden requires permission `GenreRead`"),
+    ),
+    params(
+        ("genre" = Option<String>, description = "The the name/part of the name of a genre"),
+        ("limit" = Option<u16>, description = "The maximum number of results to return")
+    ),
+    security(
+        ("permissions" = ["GenreRead"])
+    ),
+)]
 #[get("/genre?<genre>&<limit>")]
 async fn genre_get(
     db: MyDatabase,

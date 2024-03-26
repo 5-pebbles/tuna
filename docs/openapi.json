@@ -73,6 +73,86 @@
         ]
       }
     },
+    "/genre": {
+      "get": {
+        "tags": [
+          "genres"
+        ],
+        "summary": "Search for a genre in the database.",
+        "description": "Search for a genre in the database.\n\nRequires: `GenreRead` permission.",
+        "operationId": "genre_get",
+        "parameters": [
+          {
+            "name": "genre",
+            "in": "path",
+            "description": "The the name/part of the name of a genre",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "limit",
+            "in": "path",
+            "description": "The maximum number of results to return",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "genre",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "nullable": true,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Json"
+                },
+                "example": [
+                  "indie rock",
+                  "indie pop"
+                ]
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden requires permission `GenreRead`"
+          }
+        },
+        "security": [
+          {
+            "permissions": [
+              "GenreRead"
+            ]
+          }
+        ]
+      }
+    },
     "/genre/{genre}": {
       "post": {
         "tags": [
