@@ -140,6 +140,26 @@ async fn invite_write(db: MyDatabase, user: User, invite: Json<Invite>) -> Resul
     .await
 }
 
+/// Retrieves a list of invites.
+///
+/// Requires the `InviteRead` permission.
+#[utoipa::path(
+    responses(
+        (status = 200, description = "Successfully retrieved invites", body = Json<Vec<Invite>>),
+        (status = 403, description = "Forbidden requires permission `InviteRead`"),
+    ),
+    params(
+        ("code", Query, description = "The invite code to search for"),
+        ("permissions", Query, description = "The permissions the invite must grant"),
+        ("maxremaining", Query, description = "The maximum remaining uses"),
+        ("minremaining", Query, description = "The minimum remaining uses"),
+        ("creator", Query, description = "The creator of the invite"),
+        ("limit", Query, description = "The maximum number of invites to return"),
+    ),
+    security(
+        ("permissions" = ["InviteRead"]),
+    ),
+)]
 #[get("/invite?<code>&<permissions>&<maxremaining>&<minremaining>&<creator>&<limit>")]
 async fn invite_get(
     db: MyDatabase,

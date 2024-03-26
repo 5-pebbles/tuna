@@ -164,6 +164,77 @@ paths:
       - permissions:
         - GenreDelete
   /invite:
+    get:
+      tags:
+      - invites
+      summary: Retrieves a list of invites.
+      description: |-
+        Retrieves a list of invites.
+
+        Requires the `InviteRead` permission.
+      operationId: invite_get
+      parameters:
+      - name: code
+        in: query
+        description: The invite code to search for
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: permissions
+        in: query
+        description: The permissions the invite must grant
+        required: false
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/Json'
+          nullable: true
+      - name: maxremaining
+        in: query
+        description: The maximum remaining uses
+        required: false
+        schema:
+          type: integer
+          format: int32
+          nullable: true
+          minimum: 0
+      - name: minremaining
+        in: query
+        description: The minimum remaining uses
+        required: false
+        schema:
+          type: integer
+          format: int32
+          nullable: true
+          minimum: 0
+      - name: creator
+        in: query
+        description: The creator of the invite
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: limit
+        in: query
+        description: The maximum number of invites to return
+        required: false
+        schema:
+          type: integer
+          format: int32
+          nullable: true
+          minimum: 0
+      responses:
+        '200':
+          description: Successfully retrieved invites
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Json'
+        '403':
+          description: Forbidden requires permission `InviteRead`
+      security:
+      - permissions:
+        - InviteRead
     post:
       tags:
       - invites

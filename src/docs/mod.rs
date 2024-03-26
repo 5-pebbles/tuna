@@ -34,6 +34,7 @@ use crate::api::{
         permissions::permission_delete,
         invites::invite_use,
         invites::invite_write,
+        invites::invite_get,
         genres::genre_write,
         genres::genre_get,
         genres::genre_delete,
