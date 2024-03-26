@@ -236,6 +236,46 @@
         ]
       }
     },
+    "/invite/{code}": {
+      "post": {
+        "tags": [
+          "invites"
+        ],
+        "summary": "Uses an invite code to create a new user.",
+        "description": "Uses an invite code to create a new user.",
+        "operationId": "invite_use",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "description": "The invite code to use",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The login information for the new user",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Json"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created account"
+          },
+          "404": {
+            "description": "Invite code not found"
+          }
+        }
+      }
+    },
     "/permissions/{username}": {
       "post": {
         "tags": [

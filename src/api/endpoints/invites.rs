@@ -13,7 +13,20 @@ use crate::{
 
 type Result<T> = std::result::Result<T, ApiError>;
 
-// creates a new account
+/// Uses an invite code to create a new user.
+#[utoipa::path(
+    request_body(
+        description = "The login information for the new user",
+        content = Json<DangerousLogin>,
+    ),
+    responses(
+        (status = 200, description = "Successfully created account"),
+        (status = 404, description = "Invite code not found"),
+    ),
+    params(
+        ("code" = String, description = "The invite code to use"),
+    ),
+)]
 #[post("/invite/<code>", data = "<login>")]
 async fn invite_use(db: MyDatabase, code: String, login: Json<DangerousLogin>) -> Result<()> {
     let login = login.into_inner();
