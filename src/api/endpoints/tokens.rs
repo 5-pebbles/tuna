@@ -25,7 +25,8 @@ type Result<T> = std::result::Result<T, ApiError>;
     (
         status = 200,
         description = "Success",
-        body = Json<String>,
+        content_type = "application/json",
+        body = String,
         example = json!(String::from("479f879a-db6d-47e9-a094-124cd0ad648f")),
     ),
     (
@@ -84,7 +85,7 @@ async fn token_write(
         description = "Forbidden requires permission `TokenDelete`",
     )),
     params(
-        ("username" = String, description = "The username of the user who's tokens you would like to delete")
+        ("username", description = "The username of the user who's tokens you would like to delete")
     ),
     security(
         ("permissions" = ["TokenDelete"])

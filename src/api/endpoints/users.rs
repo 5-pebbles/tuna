@@ -20,7 +20,7 @@ type Result<T> = std::result::Result<T, ApiError>;
 /// The first user has all permissions available.
 #[utoipa::path(
     request_body(
-        content = Json<DangerousLogin>,
+        content = DangerousLogin,
         description = "The username & password of the first user",
     ),
     responses(
@@ -61,7 +61,6 @@ async fn user_init(db: MyDatabase, login: Json<DangerousLogin>) -> Result<()> {
         (
             status = 200,
             description = "Success",
-            content_type = "application/json",
             body = Vec<User>,
         ),
         (

@@ -17,14 +17,14 @@ type Result<T> = std::result::Result<T, ApiError>;
 #[utoipa::path(
     request_body(
         description = "The login information for the new user",
-        content = Json<DangerousLogin>,
+        content = DangerousLogin,
     ),
     responses(
         (status = 200, description = "Successfully created account"),
         (status = 404, description = "Invite code not found"),
     ),
     params(
-        ("code" = String, description = "The invite code to use"),
+        ("code", description = "The invite code to use"),
     ),
 )]
 #[post("/invite/<code>", data = "<login>")]
@@ -67,7 +67,7 @@ async fn invite_use(db: MyDatabase, code: String, login: Json<DangerousLogin>) -
 #[utoipa::path(
     request_body(
         description = "The invite information",
-        content = Json<Invite>,
+        content = Invite,
     ),
     responses(
         (status = 200, description = "Successfully created invite"),
@@ -145,7 +145,7 @@ async fn invite_write(db: MyDatabase, user: User, invite: Json<Invite>) -> Resul
 /// Requires the `InviteRead` permission.
 #[utoipa::path(
     responses(
-        (status = 200, description = "Successfully retrieved invites", body = Json<Vec<Invite>>),
+        (status = 200, description = "Successfully retrieved invites", body = Vec<Invite>),
         (status = 403, description = "Forbidden requires permission `InviteRead`"),
     ),
     params(

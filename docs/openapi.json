@@ -111,7 +111,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Json"
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 },
                 "example": [
                   "indie rock",
@@ -158,7 +161,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Json"
+                  "type": "string"
                 }
               }
             }
@@ -229,7 +232,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Json"
+                "$ref": "#/components/schemas/DangerousLogin"
               }
             }
           },
@@ -331,7 +334,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Json"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Invite"
+                  }
                 }
               }
             }
@@ -360,7 +366,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Json"
+                "$ref": "#/components/schemas/Invite"
               }
             }
           },
@@ -410,7 +416,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Json"
+                "$ref": "#/components/schemas/DangerousLogin"
               }
             }
           },
@@ -484,7 +490,10 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Json"
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Permission"
+                }
               },
               "example": [
                 "DocsRead",
@@ -533,7 +542,10 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Json"
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Permission"
+                }
               },
               "example": [
                 "DocsRead",
@@ -585,7 +597,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Json"
+                  "type": "string"
                 },
                 "example": "479f879a-db6d-47e9-a094-124cd0ad648f"
               }

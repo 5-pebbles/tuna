@@ -83,7 +83,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Json'
+                type: array
+                items:
+                  type: string
               example:
               - indie rock
               - indie pop
@@ -115,7 +117,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Json'
+                type: string
         '403':
           description: Forbidden requires permission `GenreWrite`
         '409':
@@ -166,7 +168,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Json'
+              $ref: '#/components/schemas/DangerousLogin'
         required: true
       responses:
         '200':
@@ -239,7 +241,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Json'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Invite'
         '403':
           description: Forbidden requires permission `InviteRead`
       security:
@@ -259,7 +263,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Json'
+              $ref: '#/components/schemas/Invite'
         required: true
       responses:
         '200':
@@ -290,7 +294,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Json'
+              $ref: '#/components/schemas/DangerousLogin'
         required: true
       responses:
         '200':
@@ -343,7 +347,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Json'
+              type: array
+              items:
+                $ref: '#/components/schemas/Permission'
             example:
             - DocsRead
             - PermissionAdd
@@ -377,7 +383,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Json'
+              type: array
+              items:
+                $ref: '#/components/schemas/Permission'
             example:
             - DocsRead
             - PermissionDelete
@@ -410,7 +418,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Json'
+                type: string
               example: 479f879a-db6d-47e9-a094-124cd0ad648f
         '403':
           description: Forbidden invalid username and/or password

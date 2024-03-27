@@ -17,7 +17,7 @@ type Result<T> = std::result::Result<T, ApiError>;
 /// Requires: `PermissionAdd` as well as all permissions you intend to grant
 #[utoipa::path(
     request_body(
-        content = Json<Vec<Permission>>,
+        content = Vec<Permission>,
         description = "A list of permissions to grant",
         example = json!([Permission::DocsRead, Permission::PermissionAdd]),
     ),
@@ -87,7 +87,7 @@ async fn permission_add(
 /// Requires: `PermissionDelete` & all permissions of the user who's permissions are being revoked
 #[utoipa::path(
     request_body(
-        content = Json<Vec<Permission>>,
+        content = Vec<Permission>,
         description = "A list of permissions to Revoke",
         example = json!([Permission::DocsRead, Permission::PermissionDelete]),
     ),

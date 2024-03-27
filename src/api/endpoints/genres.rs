@@ -13,7 +13,12 @@ type Result<T> = std::result::Result<T, ApiError>;
 /// Requires: `GenreWrite` permission.
 #[utoipa::path(
     responses(
-        (status = 200, description = "Success", body = Json<String>),
+        (
+            status = 200,
+            description = "Success",
+            content_type = "application/json",
+            body = String,
+        ),
         (status = 409, description = "Conflict genre already exists"),
         (status = 403, description = "Forbidden requires permission `GenreWrite`"),
     ),
@@ -42,7 +47,7 @@ async fn genre_write(db: MyDatabase, user: User, genre: String) -> Result<Json<S
 /// Requires: `GenreRead` permission.
 #[utoipa::path(
     responses(
-        (status = 200, description = "Success", body = Json<Vec<String>>, example = json!(["indie rock", "indie pop"])),
+        (status = 200, description = "Success", body = Vec<String>, example = json!(["indie rock", "indie pop"])),
         (status = 403, description = "Forbidden requires permission `GenreRead`"),
     ),
     params(
