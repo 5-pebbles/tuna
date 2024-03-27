@@ -13,7 +13,20 @@ use crate::{
 
 type Result<T> = std::result::Result<T, ApiError>;
 
-// creates a new account
+/// Uses an invite code to create a new user.
+#[utoipa::path(
+    request_body(
+        description = "The login information for the new user",
+        content = DangerousLogin,
+    ),
+    responses(
+        (status = 200, description = "Successfully created account"),
+        (status = 404, description = "Invite code not found"),
+    ),
+    params(
+        ("code", description = "The invite code to use"),
+    ),
+)]
 #[post("/invite/<code>", data = "<login>")]
 async fn invite_use(db: MyDatabase, code: String, login: Json<DangerousLogin>) -> Result<()> {
     let login = login.into_inner();
@@ -48,6 +61,23 @@ async fn invite_use(db: MyDatabase, code: String, login: Json<DangerousLogin>) -
     .await
 }
 
+/// Creates a new invite code.
+///
+/// Requires the `InviteWrite` & all permissions of the new invite.
+#[utoipa::path(
+    request_body(
+        description = "The invite information",
+        content = Invite,
+    ),
+    responses(
+        (status = 200, description = "Successfully created invite"),
+        (status = 403, description = "You do not have the required permissions to create the invite"),
+        (status = 409, description = "Invite code already exists"),
+    ),
+    security(
+        ("permissions" = ["InviteWrite"]),
+    ),
+)]
 #[post("/invite", data = "<invite>")]
 async fn invite_write(db: MyDatabase, user: User, invite: Json<Invite>) -> Result<Json<Invite>> {
     let mut invite = invite.into_inner();
@@ -110,6 +140,26 @@ async fn invite_write(db: MyDatabase, user: User, invite: Json<Invite>) -> Resul
     .await
 }
 
+/// Retrieves a list of invites.
+///
+/// Requires the `InviteRead` permission.
+#[utoipa::path(
+    responses(
+        (status = 200, description = "Successfully retrieved invites", body = Vec<Invite>),
+        (status = 403, description = "Forbidden requires permission `InviteRead`"),
+    ),
+    params(
+        ("code", Query, description = "The invite code to search for"),
+        ("permissions", Query, description = "The permissions the invite must grant"),
+        ("maxremaining", Query, description = "The maximum remaining uses"),
+        ("minremaining", Query, description = "The minimum remaining uses"),
+        ("creator", Query, description = "The creator of the invite"),
+        ("limit", Query, description = "The maximum number of invites to return"),
+    ),
+    security(
+        ("permissions" = ["InviteRead"]),
+    ),
+)]
 #[get("/invite?<code>&<permissions>&<maxremaining>&<minremaining>&<creator>&<limit>")]
 async fn invite_get(
     db: MyDatabase,
@@ -172,6 +222,21 @@ async fn invite_get(
     .await
 }
 
+/// Deletes an invite code.
+///
+/// Requires the `InviteDelete` permission.
+#[utoipa::path(
+    responses(
+        (status = 200, description = "Success"),
+        (status = 403, description = "Forbidden requires permission `InviteDelete`"),
+    ),
+    params(
+        ("code", description = "The invite code to delete"),
+    ),
+    security(
+        ("permissions" = ["InviteDelete"]),
+    ),
+)]
 #[delete("/invite/<code>")]
 async fn invite_delete(db: MyDatabase, user: User, code: String) -> Result<()> {
     if !user.permissions.contains(&Permission::InviteDelete) {

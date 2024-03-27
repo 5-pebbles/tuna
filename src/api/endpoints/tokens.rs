@@ -18,6 +18,22 @@ use crate::{
 
 type Result<T> = std::result::Result<T, ApiError>;
 
+/// Creates a login token which can be used to access other endpoints
+#[utoipa::path(
+    request_body(content = DangerousLogin, description = "Your username & password"),
+    responses(
+    (
+        status = 200,
+        description = "Success",
+        content_type = "application/json",
+        body = String,
+        example = json!(String::from("479f879a-db6d-47e9-a094-124cd0ad648f")),
+    ),
+    (
+        status = 403,
+        description = "Forbidden invalid username and/or password",
+    )),
+)]
 #[post("/token", data = "<login>")]
 async fn token_write(
     db: MyDatabase,
@@ -55,6 +71,26 @@ async fn token_write(
     Ok(Json(token))
 }
 
+/// Delete all login tokens for a given user
+///
+/// Requires: `TokenDelete` permission to delete another users tokens, but you are free to delete your own
+#[utoipa::path(
+    responses(
+    (
+        status = 200,
+        description = "Success",
+    ),
+    (
+        status = 403,
+        description = "Forbidden requires permission `TokenDelete`",
+    )),
+    params(
+        ("username", description = "The username of the user who's tokens you would like to delete")
+    ),
+    security(
+        ("permissions" = ["TokenDelete"])
+    ),
+)]
 #[delete("/token/<username>")]
 async fn token_delete(db: MyDatabase, user: User, username: String) -> Result<()> {
     if username != user.username && !user.permissions.contains(&Permission::TokenDelete) {

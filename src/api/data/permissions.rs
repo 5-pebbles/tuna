@@ -2,7 +2,9 @@ use rocket::serde::{Deserialize, Serialize};
 use rocket_sync_db_pools::rusqlite::{Error, Row};
 use std::str::FromStr;
 use strum::{Display, EnumIter, EnumString, IntoStaticStr};
+use utoipa::ToSchema;
 
+/// The permissions available in the server.
 #[non_exhaustive]
 #[derive(
     Debug,
@@ -15,6 +17,7 @@ use strum::{Display, EnumIter, EnumString, IntoStaticStr};
     EnumIter,
     EnumString,
     IntoStaticStr,
+    ToSchema,
 )]
 #[serde(crate = "rocket::serde")]
 #[strum(serialize_all = "PascalCase", ascii_case_insensitive)]

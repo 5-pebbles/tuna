@@ -2,6 +2,7 @@
 name = "tuna"
 version = "0.1.0"
 edition = "2021"
+description = "A open source music api, designed to allow client side automation & contributions."
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -18,3 +19,6 @@ refinery = { version = "0.8.12", features = ["rusqlite"] }
 [dependencies.rocket_sync_db_pools]
 version = "0.1.0"
 features = ["sqlite_pool"]
+
+[dependencies.serde_json]
+version = "1.0.0"

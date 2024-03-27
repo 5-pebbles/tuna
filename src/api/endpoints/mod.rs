@@ -1,13 +1,13 @@
 use rocket::fairing::AdHoc;
 
-mod albums;
-mod artists;
-mod genres;
-mod invites;
-mod permissions;
-mod tokens;
-mod tracks;
-mod users;
+pub mod albums;
+pub mod artists;
+pub mod genres;
+pub mod invites;
+pub mod permissions;
+pub mod tokens;
+pub mod tracks;
+pub mod users;
 
 pub fn fairing() -> AdHoc {
     AdHoc::on_ignite("API Music Systems", |rocket| async {

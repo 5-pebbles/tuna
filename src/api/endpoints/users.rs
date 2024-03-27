@@ -13,7 +13,21 @@ use crate::{
 
 type Result<T> = std::result::Result<T, ApiError>;
 
-// create the first user in the database
+/// Creates the first user in the database.
+///
+/// This endpoint only works if the database is empty. 
+/// It allows the creation of the first user, who can then invite all other users. 
+/// The first user has all permissions available.
+#[utoipa::path(
+    request_body(
+        content = DangerousLogin,
+        description = "The username & password of the first user",
+    ),
+    responses(
+        (status = 200, description = "The user was created successfully"),
+        (status = 409, description = "Conflict the database is not empty"),
+    ),
+)]
 #[post("/init", data = "<login>")]
 async fn user_init(db: MyDatabase, login: Json<DangerousLogin>) -> Result<()> {
     let login = login.into_inner();
@@ -39,6 +53,30 @@ async fn user_init(db: MyDatabase, login: Json<DangerousLogin>) -> Result<()> {
     .await
 }
 
+/// Retrieve a list of users.
+///
+/// Requires: `UserRead` permission.
+#[utoipa::path(
+    responses(
+        (
+            status = 200,
+            description = "Success",
+            body = Vec<User>,
+        ),
+        (
+            status = 403,
+            description = "Forbidden requires permission `UserRead`"
+        )
+    ),
+    params(
+        ("username", Query, description = "The username to search for"),
+        ("permissions", Query, description = "The permissions the user must possess"),
+        ("limit", Query, description = "The maximum number of users to return"),
+    ),
+    security(
+        ("permissions" = ["UserRead"])
+    ),
+)]
 #[get("/user?<username>&<permissions>&<limit>")]
 async fn user_get(
     db: MyDatabase,
@@ -83,6 +121,21 @@ async fn user_get(
     .await
 }
 
+/// Deletes a user from the database.
+///
+/// Requires: `UserDelete` permission to delete another user, but you are free to delete yourself.
+#[utoipa::path(
+    responses(
+        (status = 200, description = "Success"),
+        (status = 403, description = "Forbidded you do not have the required permissions"),
+    ),
+    params(
+        ("username", description = "The username of the user to delete"),
+    ),
+    security(
+        ("permissions" = ["UserDelete"])
+    ),
+)]
 #[delete("/user/<username>")]
 async fn user_delete(db: MyDatabase, user: User, username: &str) -> Result<()> {
     let username = username.to_string(); // Fix Message: Using `String` as a parameter type is inefficient. Use `&str` instead.
