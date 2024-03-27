@@ -21,7 +21,7 @@ use crate::api::{
         permissions::Permission,
         users::{DangerousLogin, User},
     },
-    endpoints::{genres, invites, permissions, tokens},
+    endpoints::{genres, invites, permissions, tokens, users},
 };
 
 #[derive(OpenApi)]
@@ -36,6 +36,7 @@ use crate::api::{
         invites::invite_write,
         invites::invite_get,
         invites::invite_delete,
+        users::user_init,
         genres::genre_write,
         genres::genre_get,
         genres::genre_delete,

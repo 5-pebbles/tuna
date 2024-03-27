@@ -13,7 +13,21 @@ use crate::{
 
 type Result<T> = std::result::Result<T, ApiError>;
 
-// create the first user in the database
+/// Creates the first user in the database.
+///
+/// This endpoint only works if the database is empty. 
+/// It allows the creation of the first user, who can then invite all other users. 
+/// The first user has all permissions available.
+#[utoipa::path(
+    request_body(
+        content = Json<DangerousLogin>,
+        description = "The username & password of the first user",
+    ),
+    responses(
+        (status = 200, description = "The user was created successfully"),
+        (status = 409, description = "Conflict the database is not empty"),
+    ),
+)]
 #[post("/init", data = "<login>")]
 async fn user_init(db: MyDatabase, login: Json<DangerousLogin>) -> Result<()> {
     let login = login.into_inner();

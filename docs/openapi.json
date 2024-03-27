@@ -216,6 +216,35 @@
         ]
       }
     },
+    "/init": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Creates the first user in the database.",
+        "description": "Creates the first user in the database.\n\nThis endpoint only works if the database is empty.\nIt allows the creation of the first user, who can then invite all other users.\nThe first user has all permissions available.",
+        "operationId": "user_init",
+        "requestBody": {
+          "description": "The username & password of the first user",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Json"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "The user was created successfully"
+          },
+          "409": {
+            "description": "Conflict the database is not empty"
+          }
+        }
+      }
+    },
     "/invite": {
       "get": {
         "tags": [
