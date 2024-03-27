@@ -777,6 +777,33 @@
           }
         }
       },
+      "Permission": {
+        "type": "string",
+        "description": "The permissions available in the server.",
+        "enum": [
+          "DocsRead",
+          "InviteWrite",
+          "InviteRead",
+          "InviteDelete",
+          "UserRead",
+          "UserDelete",
+          "PermissionAdd",
+          "PermissionDelete",
+          "TokenDelete",
+          "GenreWrite",
+          "GenreRead",
+          "GenreDelete",
+          "ArtistWrite",
+          "ArtistRead",
+          "ArtistDelete",
+          "AlbumWrite",
+          "AlbumRead",
+          "AlbumDelete",
+          "TrackWrite",
+          "TrackRead",
+          "TrackDelete"
+        ]
+      },
       "User": {
         "type": "object",
         "description": "The username and permissions of a user.",
