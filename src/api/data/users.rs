@@ -14,7 +14,7 @@ use crate::{
     error::ApiError,
 };
 
-/// The login information for a user
+/// The login information for a user.
 #[derive(Deserialize, ToSchema)]
 #[serde(crate = "rocket::serde")]
 pub struct DangerousLogin {
@@ -65,10 +65,13 @@ impl DangerousLogin {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+/// The username and permissions of a user.
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
 #[serde(crate = "rocket::serde")]
 pub struct User {
+    #[schema(example = "5-pebbles")]
     pub username: String,
+    #[schema(example = "['UserRead', 'DocsRead']")]
     pub permissions: Vec<Permission>,
 }
 

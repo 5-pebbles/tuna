@@ -41,7 +41,7 @@ use crate::api::{
         genres::genre_write,
         genres::genre_get,
         genres::genre_delete,
-    ), components(schemas(DangerousLogin)), modifiers(&SecurityAddon))]
+    ), components(schemas(DangerousLogin, User)), modifiers(&SecurityAddon))]
 struct ApiDoc;
 
 struct SecurityAddon;

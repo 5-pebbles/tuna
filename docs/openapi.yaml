@@ -492,7 +492,7 @@ components:
   schemas:
     DangerousLogin:
       type: object
-      description: The login information for a user
+      description: The login information for a user.
       required:
       - username
       - password
@@ -504,6 +504,21 @@ components:
         username:
           type: string
           description: Your username
+          example: 5-pebbles
+    User:
+      type: object
+      description: The username and permissions of a user.
+      required:
+      - username
+      - permissions
+      properties:
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
+          example: '[''UserRead'', ''DocsRead'']'
+        username:
+          type: string
           example: 5-pebbles
   securitySchemes:
     api_key:
