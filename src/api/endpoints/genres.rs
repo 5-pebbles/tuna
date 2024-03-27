@@ -42,7 +42,7 @@ async fn genre_write(db: MyDatabase, user: User, genre: String) -> Result<Json<S
     .await
 }
 
-/// Search for a genre in the database.
+/// Retrieve a list of genres from the database.
 ///
 /// Requires: `GenreRead` permission.
 #[utoipa::path(
