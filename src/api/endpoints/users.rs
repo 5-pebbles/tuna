@@ -53,6 +53,31 @@ async fn user_init(db: MyDatabase, login: Json<DangerousLogin>) -> Result<()> {
     .await
 }
 
+/// Retrieve a list of users.
+///
+/// Requires: `UserRead` permission.
+#[utoipa::path(
+    responses(
+        (
+            status = 200,
+            description = "Success",
+            content_type = "application/json",
+            body = Vec<User>,
+        ),
+        (
+            status = 403,
+            description = "Forbidden requires permission `UserRead`"
+        )
+    ),
+    params(
+        ("username", Query, description = "The username to search for"),
+        ("permissions", Query, description = "The permissions the user must possess"),
+        ("limit", Query, description = "The maximum number of users to return"),
+    ),
+    security(
+        ("permissions" = ["UserRead"])
+    ),
+)]
 #[get("/user?<username>&<permissions>&<limit>")]
 async fn user_get(
     db: MyDatabase,

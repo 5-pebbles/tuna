@@ -439,6 +439,55 @@ paths:
       security:
       - permissions:
         - TokenDelete
+  /user:
+    get:
+      tags:
+      - users
+      summary: Retrieve a list of users.
+      description: |-
+        Retrieve a list of users.
+
+        Requires: `UserRead` permission.
+      operationId: user_get
+      parameters:
+      - name: username
+        in: query
+        description: The username to search for
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: permissions
+        in: query
+        description: The permissions the user must possess
+        required: false
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/Json'
+          nullable: true
+      - name: limit
+        in: query
+        description: The maximum number of users to return
+        required: false
+        schema:
+          type: integer
+          format: int32
+          nullable: true
+          minimum: 0
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '403':
+          description: Forbidden requires permission `UserRead`
+      security:
+      - permissions:
+        - UserRead
 components:
   schemas:
     DangerousLogin:
