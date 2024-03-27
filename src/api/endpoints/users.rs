@@ -121,6 +121,21 @@ async fn user_get(
     .await
 }
 
+/// Deletes a user from the database.
+///
+/// Requires: `UserDelete` permission to delete another user, but you are free to delete yourself.
+#[utoipa::path(
+    responses(
+        (status = 200, description = "Success"),
+        (status = 403, description = "Forbidded you do not have the required permissions"),
+    ),
+    params(
+        ("username", description = "The username of the user to delete"),
+    ),
+    security(
+        ("permissions" = ["UserDelete"])
+    ),
+)]
 #[delete("/user/<username>")]
 async fn user_delete(db: MyDatabase, user: User, username: &str) -> Result<()> {
     let username = username.to_string(); // Fix Message: Using `String` as a parameter type is inefficient. Use `&str` instead.

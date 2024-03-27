@@ -717,6 +717,42 @@
           }
         ]
       }
+    },
+    "/user/{username}": {
+      "delete": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Deletes a user from the database.",
+        "description": "Deletes a user from the database.\n\nRequires: `UserDelete` permission to delete another user, but you are free to delete yourself.",
+        "operationId": "user_delete",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "description": "The username of the user to delete",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "403": {
+            "description": "Forbidded you do not have the required permissions"
+          }
+        },
+        "security": [
+          {
+            "permissions": [
+              "UserDelete"
+            ]
+          }
+        ]
+      }
     }
   },
   "components": {
