@@ -4,13 +4,13 @@ use rocket_sync_db_pools::rusqlite::{params, Error::QueryReturnedNoRows, ToSql};
 use crate::{
     api::data::{albums::Album, permissions::Permission, users::User},
     error::ApiError,
-    database::Database,
+    database::MyDatabase,
 };
 
 type Result<T> = std::result::Result<T, ApiError>;
 
 #[post("/album", data = "<album>")]
-async fn album_write(db: Database, user: User, album: Json<Album>) -> Result<Json<Album>> {
+async fn album_write(db: MyDatabase, user: User, album: Json<Album>) -> Result<Json<Album>> {
     if !user.permissions.contains(&Permission::AlbumWrite) {
         Err(Status::Forbidden)?
     }
@@ -55,7 +55,7 @@ async fn album_write(db: Database, user: User, album: Json<Album>) -> Result<Jso
 
 #[get("/album?<id>&<name>&<maxrelease>&<minrelease>&<genres>&<maxcount>&<mincount>&<limit>")]
 async fn album_get(
-    db: Database,
+    db: MyDatabase,
     user: User,
     id: Option<String>,
     name: Option<String>,
@@ -155,14 +155,12 @@ async fn album_get(
 }
 
 #[delete("/album/<id>")]
-async fn album_delete(db: Database, user: User, id: String) -> Result<()> {
+async fn album_delete(db: MyDatabase, user: User, id: String) -> Result<()> {
     if !user.permissions.contains(&Permission::AlbumDelete) {
         Err(Status::Forbidden)?
     }
 
     db.run(move |conn| -> Result<()> {
-        conn.execute_batch("PRAGMA foreign_keys = ON;")?;
-
         let tx = conn.transaction()?;
 
         if let Err(QueryReturnedNoRows) =

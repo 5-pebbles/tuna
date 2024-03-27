@@ -10,7 +10,7 @@ use rocket_sync_db_pools::rusqlite::{params, params_from_iter, Error, Row, Trans
 use crate::{
     api::data::permissions::{permissions_from_row, Permission},
     error::ApiError,
-    database::Database,
+    database::MyDatabase,
 };
 
 #[derive(Deserialize)]
@@ -81,7 +81,7 @@ impl<'r> FromRequest<'r> for User {
     type Error = ApiError;
 
     async fn from_request(request: &'r Request<'_>) -> request::Outcome<User, Self::Error> {
-        let db = match request.guard::<Database>().await {
+        let db = match request.guard::<MyDatabase>().await {
             Outcome::Success(db) => db,
             Outcome::Forward(f) => return Outcome::Forward(f),
             Outcome::Error((e, _)) => {

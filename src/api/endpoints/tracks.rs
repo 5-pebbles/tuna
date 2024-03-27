@@ -4,13 +4,13 @@ use rocket_sync_db_pools::rusqlite::{params, Error::QueryReturnedNoRows, ToSql};
 use crate::{
     api::data::{permissions::Permission, tracks::Track, users::User},
     error::ApiError,
-    database::Database,
+    database::MyDatabase,
 };
 
 type Result<T> = std::result::Result<T, ApiError>;
 
 #[post("/track", data = "<track>")]
-async fn track_write(db: Database, user: User, track: Json<Track>) -> Result<Json<Track>> {
+async fn track_write(db: MyDatabase, user: User, track: Json<Track>) -> Result<Json<Track>> {
     if !user.permissions.contains(&Permission::TrackWrite) {
         Err(Status::Forbidden)?
     }
@@ -56,7 +56,7 @@ async fn track_write(db: Database, user: User, track: Json<Track>) -> Result<Jso
 
 #[get("/track?<id>&<name>&<maxrelease>&<minrelease>&<genres>&<albums>&<artists>&<lyrics>&<limit>")]
 async fn track_get(
-    db: Database,
+    db: MyDatabase,
     user: User,
     id: Option<String>,
     name: Option<String>,
@@ -165,14 +165,12 @@ async fn track_get(
 }
 
 #[delete("/track/<id>")]
-async fn track_delete(db: Database, user: User, id: String) -> Result<()> {
+async fn track_delete(db: MyDatabase, user: User, id: String) -> Result<()> {
     if !user.permissions.contains(&Permission::TrackDelete) {
         Err(Status::Forbidden)?
     }
 
     db.run(move |conn| -> Result<()> {
-        conn.execute_batch("PRAGMA foreign_keys = ON;")?;
-
         let tx = conn.transaction()?;
 
         if let Err(QueryReturnedNoRows) =
