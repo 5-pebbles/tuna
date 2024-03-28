@@ -78,8 +78,8 @@
         "tags": [
           "genres"
         ],
-        "summary": "Search for a genre in the database.",
-        "description": "Search for a genre in the database.\n\nRequires: `GenreRead` permission.",
+        "summary": "Retrieve a list of genres from the database.",
+        "description": "Retrieve a list of genres from the database.\n\nRequires: `GenreRead` permission.",
         "operationId": "genre_get",
         "parameters": [
           {
@@ -466,7 +466,7 @@
         ]
       }
     },
-    "/permissions/{username}": {
+    "/permission/{username}": {
       "post": {
         "tags": [
           "permissions"

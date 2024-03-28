@@ -54,9 +54,9 @@ paths:
     get:
       tags:
       - genres
-      summary: Search for a genre in the database.
+      summary: Retrieve a list of genres from the database.
       description: |-
-        Search for a genre in the database.
+        Retrieve a list of genres from the database.
 
         Requires: `GenreRead` permission.
       operationId: genre_get
@@ -325,7 +325,7 @@ paths:
       security:
       - permissions:
         - InviteDelete
-  /permissions/{username}:
+  /permission/{username}:
     post:
       tags:
       - permissions

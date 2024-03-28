@@ -37,7 +37,7 @@ type Result<T> = std::result::Result<T, ApiError>;
         ("permissions" = ["PermissionAdd"])
     ),
 )]
-#[post("/permissions/<username>", data = "<permissions_to_add>")]
+#[post("/permission/<username>", data = "<permissions_to_add>")]
 async fn permission_add(
     db: MyDatabase,
     user: User,
@@ -107,7 +107,7 @@ async fn permission_add(
         ("permissions" = ["PermissionDelete"])
     ),
 )]
-#[delete("/permissions/<username>", data = "<permissions_to_delete>")]
+#[delete("/permission/<username>", data = "<permissions_to_delete>")]
 async fn permission_delete(
     db: MyDatabase,
     user: User,
