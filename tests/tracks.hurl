@@ -176,7 +176,7 @@ HTTP 200
 # End Delete Track
 
 # Required Permissions
-DELETE {{url}}/permissions/SystemTest
+DELETE {{url}}/permission/SystemTest
 [
     "TrackWrite"
 ]
@@ -197,7 +197,7 @@ HTTP 200
 [Asserts]
 jsonpath "$" count == 0
 
-DELETE {{url}}/permissions/SystemTest
+DELETE {{url}}/permission/SystemTest
 [
     "TrackRead"
 ]
@@ -207,7 +207,7 @@ GET {{url}}/track
 HTTP 403
 
 
-DELETE {{url}}/permissions/SystemTest
+DELETE {{url}}/permission/SystemTest
 [
     "TrackDelete"
 ]

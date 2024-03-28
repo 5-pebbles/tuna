@@ -106,7 +106,7 @@ DELETE {{url}}/artist/0
 HTTP 200
 
 
-DELETE {{url}}/permissions/SystemTest
+DELETE {{url}}/permission/SystemTest
 [
     "ArtistWrite"
 ]
@@ -121,7 +121,7 @@ POST {{url}}/artist
 }
 HTTP 403
 
-DELETE {{url}}/permissions/SystemTest
+DELETE {{url}}/permission/SystemTest
 [
     "ArtistRead"
 ]
@@ -130,7 +130,7 @@ HTTP 200
 GET {{url}}/artist
 HTTP 403
 
-DELETE {{url}}/permissions/SystemTest
+DELETE {{url}}/permission/SystemTest
 [
     "ArtistDelete"
 ]
