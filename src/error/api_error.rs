@@ -36,3 +36,9 @@ impl From<BcryptError> for ApiError {
         Self::HashError(format!("Hash Error: {e}"))
     }
 }
+
+impl From<std::io::Error> for ApiError {
+    fn from(e: std::io::Error) -> Self {
+        Self::Status(Status::InternalServerError)
+    }
+}
