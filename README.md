@@ -1,6 +1,7 @@
 # Tuna 🍣
 
-Tuna is an open-source music API designed to allow client-side automation & contributions.
+Tuna is an open-source music API designed to allow client-side automation and contributions, built with Rust, Rocket, and SQLite. It aims to provide a simple, fast, and reliable way to manage your music libraries.
+
 
 > ### Work in Progress 🚧
 >
@@ -11,12 +12,14 @@ Tuna is an open-source music API designed to allow client-side automation & cont
 
 - **User Management:** Tuna offers a comprehensive API for managing other users, invites, and permissions. So you can safely share your music library with friends and family (or your army of bots).
 
-- **Music Management:** Tuna allows you to easily manage your music library, including (but not limited to) adding, removing, and updating songs, albums, and artists.
+- **Music Management:** Tuna allows you to easily manage your music library, including adding, removing, and updating songs, albums, and artists.
 
 
 ## Quick Start 🚀
 
 To get started, you'll need to have [Rust](https://www.rust-lang.org/tools/install) installed on your system.
+
+Then follow these steps to run Tuna on your local machine:
 
 ```bash
 # Clone the repository
