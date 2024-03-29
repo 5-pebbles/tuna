@@ -43,4 +43,4 @@ To run tests, you'll need to have [hurl](https://github.com/Orange-OpenSource/hu
 
 ## Contact 📫
 
-For any questions, feedback, or support, please open an issue on [GitHub](https://github.com/5-pebbles/5-pebbles/issues) or contact me at [5-pebble@protonmail.com](mailto:5-pebble@protonmail.com)
+For any questions, feedback, or support, please open an issue on [GitHub](https://github.com/5-pebbles/tuna/issues) or contact me at [5-pebble@protonmail.com](mailto:5-pebble@protonmail.com)
