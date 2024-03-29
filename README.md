@@ -1,6 +1,8 @@
 # Tuna 🍣
 
-Tuna is an open-source music API designed to allow client-side automation and contributions, built with Rust, Rocket, and SQLite. It aims to provide a simple, fast, and reliable way to manage your music libraries.
+Tuna is an open-source music API built with Rust, Rocket, and SQLite.
+
+It's designed to allow client-side automation and contributions, providing a simple, fast, and reliable way to maintain your music libraries.
 
 
 > ### Work in Progress 🚧
