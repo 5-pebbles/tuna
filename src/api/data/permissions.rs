@@ -55,6 +55,11 @@ pub enum Permission {
     TrackWrite,
     TrackRead,
     TrackDelete,
+
+    // Content
+    ContentWrite,
+    ContentRead,
+    ContentDelete,
 }
 
 /// Extracts permissions from a rusqlite row and converts them into a `Vec<Permission>`.
