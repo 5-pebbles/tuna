@@ -86,7 +86,7 @@ async fn genre_get(
         Ok(Json(
             conn.prepare(&sql)?
                 .query_map(&params_sql[..], |row| row.get(0))?
-                .map(|v| v.map_err(|e| ApiError::from(e)))
+                .map(|v| v.map_err(ApiError::from))
                 .collect::<Result<Vec<String>>>()?,
         ))
     })

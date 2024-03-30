@@ -35,7 +35,7 @@ async fn track_write(db: MyDatabase, user: User, track: Json<Track>) -> Result<J
             track.artists.extend(
                 tx.prepare("SELECT artist_id FROM artist_albums WHERE album_id = ?")?
                     .query_map(params![album], |row| row.get::<usize, String>(0))?
-                    .map(|v| v.map_err(|e| ApiError::from(e)))
+                    .map(|v| v.map_err(ApiError::from))
                     .collect::<Result<Vec<String>>>()?,
             );
         }
@@ -158,7 +158,7 @@ async fn track_get(
                     })
                 }
                     )?
-                .map(|v| v.map_err(|e| ApiError::from(e)))
+                .map(|v| v.map_err(ApiError::from))
                 .collect::<Result<Vec<Track>>>()?,
                ))
     }).await

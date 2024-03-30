@@ -43,7 +43,7 @@ async fn invite_use(db: MyDatabase, code: String, login: Json<DangerousLogin>) -
                 params![code],
                 |row| Ok((row.get("remaining")?, permissions_from_row(row)?)),
             )
-            .map_err(|e| ApiError::from(e))?;
+            .map_err(ApiError::from)?;
 
         login.insert_user_into_transaction(permissions, &tx)?;
 
@@ -215,7 +215,7 @@ async fn invite_get(
         Ok(Json(
             conn.prepare(&sql)?
                 .query_map(&params_sql[..], Invite::try_from_row)?
-                .map(|v| v.map_err(|e| ApiError::from(e)))
+                .map(|v| v.map_err(ApiError::from))
                 .collect::<Result<Vec<Invite>>>()?,
         ))
     })
