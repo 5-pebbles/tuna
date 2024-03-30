@@ -113,8 +113,8 @@ async fn user_get(
 
         Ok(Json(
             conn.prepare(&sql)?
-                .query_map(params_from_iter(params), |row| User::try_from_row(row))?
-                .map(|v| v.map_err(|e| ApiError::from(e)))
+                .query_map(params_from_iter(params), User::try_from_row)?
+                .map(|v| v.map_err(ApiError::from))
                 .collect::<Result<Vec<User>>>()?,
         ))
     })

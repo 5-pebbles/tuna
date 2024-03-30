@@ -5,6 +5,7 @@ use strum::{Display, EnumIter, EnumString, IntoStaticStr};
 use utoipa::ToSchema;
 
 /// The permissions available in the server.
+#[allow(clippy::enum_variant_names)]
 #[non_exhaustive]
 #[derive(
     Debug,
@@ -75,9 +76,9 @@ pub enum Permission {
 ///
 pub fn permissions_from_row(row: &Row) -> Result<Vec<Permission>, Error> {
     Ok(row.get::<&str, Option<String>>("permissions")?.map_or_else(
-        || Vec::new(),
+        Vec::new,
         |v| {
-            v.split(",")
+            v.split(',')
                 .filter_map(|s| Permission::from_str(s).ok())
                 .collect()
         },
