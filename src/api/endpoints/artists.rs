@@ -103,7 +103,7 @@ async fn artist_get(
                         genres: genres_vec,
                     })
                 })?
-                .map(|v| v.map_err(|e| ApiError::from(e)))
+                .map(|v| v.map_err(ApiError::from))
                 .collect::<Result<Vec<Artist>>>()?,
         ))
     })

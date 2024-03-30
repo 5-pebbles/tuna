@@ -62,7 +62,7 @@ async fn permission_add(
             "INSERT OR IGNORE INTO user_permissions (id, username) VALUES {};",
             permissions_to_add
                 .iter()
-                .map(|_| format!("\n (?, ?)"))
+                .map(|_| "\n (?, ?)".to_string())
                 .collect::<Vec<String>>()
                 .join(",")
         );
@@ -70,8 +70,7 @@ async fn permission_add(
         let params = params_from_iter(
             permissions_to_add
                 .into_iter()
-                .map(|p| [<&'static str>::from(p), &username])
-                .flatten(),
+                .flat_map(|p| [<&'static str>::from(p), &username]),
         );
 
         tx.execute(&sql, params)?;
@@ -140,6 +139,9 @@ async fn permission_delete(
             .collect::<Vec<_>>()
             .join(", ");
 
+        // You can't fix the redundant closure here or you get a lifetime error
+        // It feels like it should work the same but IDK
+        #[allow(clippy::redundant_closure)]
         let params = params_from_iter(
             std::iter::once(username.as_str()).chain(
                 permissions_to_delete

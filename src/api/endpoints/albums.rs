@@ -147,7 +147,7 @@ async fn album_get(
                         genres,
                     })
                 })?
-                .map(|v| v.map_err(|e| ApiError::from(e)))
+                .map(|v| v.map_err(ApiError::from))
                 .collect::<Result<Vec<Album>>>()?,
         ))
     })
