@@ -92,7 +92,7 @@ async fn upload_audio(db: MyDatabase, user: User, track: &str, data: Data<'_>) -
     ),
     (
         status = 404,
-        description = "The track does not exist",
+        description = "The requested audio does not exist",
     )),
     params(
         ("track", description = "The id of the track who's audio you are downloading"),
@@ -117,6 +117,29 @@ async fn get_audio(user: User, track: PathBuf) -> Result<Option<NamedFile>> {
 }
 
 /// Delete the audio file for a track.
+///
+/// Requires: `AudioDelete` permission.
+#[utoipa::path(
+    responses(
+    (
+        status = 200,
+        description = "Success",
+    ),
+    (
+        status = 403,
+        description = "Forbidden requires permission `AudioDelete`",
+    ),
+    (
+        status = 404,
+        description = "The audio file does not exist",
+    )),
+    params(
+        ("track", description = "The id of the track who's audio you are deleting"),
+    ),
+    security(
+        ("permissions" = ["AudioDelete"])
+    ),
+)]
 #[delete("/audio/<track>")]
 async fn delete_audio(user: User, track: PathBuf) -> Result<()> {
     if !user.permissions.contains(&Permission::AudioDelete) {

@@ -43,7 +43,7 @@
             "description": "Forbidden requires permission `AudioRead`"
           },
           "404": {
-            "description": "The track does not exist"
+            "description": "The requested audio does not exist"
           }
         },
         "security": [
@@ -98,6 +98,43 @@
           {
             "permissions": [
               "AudioWrite"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "audio"
+        ],
+        "summary": "Delete the audio file for a track.",
+        "description": "Delete the audio file for a track.\n\nRequires: `AudioDelete` permission.",
+        "operationId": "delete_audio",
+        "parameters": [
+          {
+            "name": "track",
+            "in": "path",
+            "description": "The id of the track who's audio you are deleting",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "403": {
+            "description": "Forbidden requires permission `AudioDelete`"
+          },
+          "404": {
+            "description": "The audio file does not exist"
+          }
+        },
+        "security": [
+          {
+            "permissions": [
+              "AudioDelete"
             ]
           }
         ]
