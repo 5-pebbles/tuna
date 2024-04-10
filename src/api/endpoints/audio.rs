@@ -42,7 +42,7 @@ type Result<T> = std::result::Result<T, ApiError>;
     ),
 )]
 #[put("/audio/<track>", format = "audio/mpeg", data = "<data>")]
-async fn upload_audio(db: MyDatabase, user: User, track: &str, data: Data<'_>) -> Result<()> {
+async fn audio_upload(db: MyDatabase, user: User, track: &str, data: Data<'_>) -> Result<()> {
     if !user.permissions.contains(&Permission::AudioWrite) {
         Err(Status::Forbidden)?
     }
@@ -102,7 +102,7 @@ async fn upload_audio(db: MyDatabase, user: User, track: &str, data: Data<'_>) -
     ),
 )]
 #[get("/audio/<track>")]
-async fn get_audio(user: User, track: PathBuf) -> Result<Option<NamedFile>> {
+async fn audio_get(user: User, track: PathBuf) -> Result<Option<NamedFile>> {
     if !user.permissions.contains(&Permission::AudioRead) {
         Err(Status::Forbidden)?
     }
@@ -141,7 +141,7 @@ async fn get_audio(user: User, track: PathBuf) -> Result<Option<NamedFile>> {
     ),
 )]
 #[delete("/audio/<track>")]
-async fn delete_audio(user: User, track: PathBuf) -> Result<()> {
+async fn audio_delete(user: User, track: PathBuf) -> Result<()> {
     if !user.permissions.contains(&Permission::AudioDelete) {
         Err(Status::Forbidden)?
     }
@@ -162,6 +162,6 @@ async fn delete_audio(user: User, track: PathBuf) -> Result<()> {
 
 pub fn fairing() -> AdHoc {
     AdHoc::on_ignite("API Audio Endpoints", |rocket| async {
-        rocket.mount("/", routes![upload_audio, get_audio, delete_audio])
+        rocket.mount("/", routes![audio_upload, audio_get, audio_delete])
     })
 }
