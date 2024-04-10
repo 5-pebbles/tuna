@@ -15,7 +15,7 @@ paths:
         Get the audio file for a track.
 
         Requires: `AudioRead` permission.
-      operationId: get_audio
+      operationId: audio_get
       parameters:
       - name: track
         in: path
@@ -45,7 +45,7 @@ paths:
         Upload the audio file for a track.
 
         Requires: `AudioWrite` permission.
-      operationId: upload_audio
+      operationId: audio_upload
       parameters:
       - name: track
         in: path
@@ -78,7 +78,7 @@ paths:
         Delete the audio file for a track.
 
         Requires: `AudioDelete` permission.
-      operationId: delete_audio
+      operationId: audio_delete
       parameters:
       - name: track
         in: path

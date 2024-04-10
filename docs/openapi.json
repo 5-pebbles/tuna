@@ -16,7 +16,7 @@
         ],
         "summary": "Get the audio file for a track.",
         "description": "Get the audio file for a track.\n\nRequires: `AudioRead` permission.",
-        "operationId": "get_audio",
+        "operationId": "audio_get",
         "parameters": [
           {
             "name": "track",
@@ -60,7 +60,7 @@
         ],
         "summary": "Upload the audio file for a track.",
         "description": "Upload the audio file for a track.\n\nRequires: `AudioWrite` permission.",
-        "operationId": "upload_audio",
+        "operationId": "audio_upload",
         "parameters": [
           {
             "name": "track",
@@ -108,7 +108,7 @@
         ],
         "summary": "Delete the audio file for a track.",
         "description": "Delete the audio file for a track.\n\nRequires: `AudioDelete` permission.",
-        "operationId": "delete_audio",
+        "operationId": "audio_delete",
         "parameters": [
           {
             "name": "track",

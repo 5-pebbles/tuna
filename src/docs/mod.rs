@@ -42,9 +42,9 @@ use crate::api::{
         genres::genre_write,
         genres::genre_get,
         genres::genre_delete,
-        audio::upload_audio,
-        audio::get_audio,
-        audio::delete_audio,
+        audio::audio_upload,
+        audio::audio_get,
+        audio::audio_delete,
     ), components(schemas(Permission, DangerousLogin, User)), modifiers(&SecurityAddon))]
 struct ApiDoc;
 
