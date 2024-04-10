@@ -17,8 +17,9 @@ type Result<T> = std::result::Result<T, ApiError>;
 /// Requires: `AudioWrite` permission.
 #[utoipa::path(
     request_body(
-        content = Data,
         description = "The audio file to upload",
+        content_type = "audio/mpeg",
+        content = String,
     ),
     responses(
     (
@@ -75,6 +76,31 @@ async fn upload_audio(db: MyDatabase, user: User, track: &str, data: Data<'_>) -
 }
 
 /// Get the audio file for a track.
+///
+/// Requires: `AudioRead` permission.
+#[utoipa::path(
+    responses(
+    (
+        status = 200,
+        description = "Success",
+        content_type = "audio/mpeg",
+        body = String,
+    ),
+    (
+        status = 403,
+        description = "Forbidden requires permission `AudioRead`",
+    ),
+    (
+        status = 404,
+        description = "The track does not exist",
+    )),
+    params(
+        ("track", description = "The id of the track who's audio you are downloading"),
+    ),
+    security(
+        ("permissions" = ["AudioRead"])
+    ),
+)]
 #[get("/audio/<track>")]
 async fn get_audio(user: User, track: PathBuf) -> Result<Option<NamedFile>> {
     if !user.permissions.contains(&Permission::AudioRead) {
