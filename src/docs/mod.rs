@@ -21,7 +21,7 @@ use crate::api::{
         permissions::Permission,
         users::{DangerousLogin, User},
     },
-    endpoints::{genres, invites, permissions, tokens, users},
+    endpoints::{genres, invites, permissions, tokens, users, audio},
 };
 
 #[derive(OpenApi)]
@@ -42,6 +42,7 @@ use crate::api::{
         genres::genre_write,
         genres::genre_get,
         genres::genre_delete,
+        audio::upload_audio,
     ), components(schemas(Permission, DangerousLogin, User)), modifiers(&SecurityAddon))]
 struct ApiDoc;
 
