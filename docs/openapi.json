@@ -801,7 +801,10 @@
           "AlbumDelete",
           "TrackWrite",
           "TrackRead",
-          "TrackDelete"
+          "TrackDelete",
+          "AudioWrite",
+          "AudioRead",
+          "AudioDelete"
         ]
       },
       "User": {
