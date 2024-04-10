@@ -7,6 +7,36 @@ info:
   version: 0.1.0
 paths:
   /audio/{track}:
+    get:
+      tags:
+      - audio
+      summary: Get the audio file for a track.
+      description: |-
+        Get the audio file for a track.
+
+        Requires: `AudioRead` permission.
+      operationId: get_audio
+      parameters:
+      - name: track
+        in: path
+        description: The id of the track who's audio you are downloading
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+        '403':
+          description: Forbidden requires permission `AudioRead`
+        '404':
+          description: The track does not exist
+      security:
+      - permissions:
+        - AudioRead
     put:
       tags:
       - audio
@@ -26,9 +56,9 @@ paths:
       requestBody:
         description: The audio file to upload
         content:
-          application/json:
+          audio/mpeg:
             schema:
-              $ref: '#/components/schemas/Data'
+              type: string
         required: true
       responses:
         '200':
