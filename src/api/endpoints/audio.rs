@@ -13,6 +13,33 @@ use crate::{
 type Result<T> = std::result::Result<T, ApiError>;
 
 /// Upload the audio file for a track.
+///
+/// Requires: `AudioWrite` permission.
+#[utoipa::path(
+    request_body(
+        content = Data,
+        description = "The audio file to upload",
+    ),
+    responses(
+    (
+        status = 200,
+        description = "Success",
+    ),
+    (
+        status = 403,
+        description = "Forbidden reqiures permission `AudioWrite`",
+    ),
+    (
+        status = 404,
+        description = "The track does not exist",
+    )),
+    params(
+        ("track", description = "The id of track for which you are uploading audio"),
+    ),
+    security(
+        ("permissions" = ["AudioWrite"])
+    ),
+)]
 #[put("/audio/<track>", format = "audio/mpeg", data = "<data>")]
 async fn upload_audio(db: MyDatabase, user: User, track: &str, data: Data<'_>) -> Result<()> {
     if !user.permissions.contains(&Permission::AudioWrite) {

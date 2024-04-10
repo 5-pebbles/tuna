@@ -9,6 +9,56 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/audio/{track}": {
+      "put": {
+        "tags": [
+          "audio"
+        ],
+        "summary": "Upload the audio file for a track.",
+        "description": "Upload the audio file for a track.\n\nRequires: `AudioWrite` permission.",
+        "operationId": "upload_audio",
+        "parameters": [
+          {
+            "name": "track",
+            "in": "path",
+            "description": "The id of track for which you are uploading audio",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "The audio file to upload",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Data"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "403": {
+            "description": "Forbidden reqiures permission `AudioWrite`"
+          },
+          "404": {
+            "description": "The track does not exist"
+          }
+        },
+        "security": [
+          {
+            "permissions": [
+              "AudioWrite"
+            ]
+          }
+        ]
+      }
+    },
     "/docs/openapi.json": {
       "get": {
         "tags": [
