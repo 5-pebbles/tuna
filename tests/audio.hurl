@@ -62,6 +62,36 @@ HTTP 200
 DELETE {{url}}/audio/0
 HTTP 404
 
+# Required Permissions
+DELETE {{url}}/permission/SystemTest
+[
+    "AudioWrite"
+]
+HTTP 200
+
+PUT {{url}}/audio/0
+content-type: audio/mpeg
+file, the_last_of_us_main_theme.mp3;
+HTTP 403
+
+DELETE {{url}}/permission/SystemTest
+[
+    "AudioRead"
+]
+HTTP 200
+
+GET {{url}}/audio/0
+HTTP 403
+
+DELETE {{url}}/permission/SystemTest
+[
+    "AudioDelete"
+]
+HTTP 200
+
+DELETE {{url}}/audio/0
+HTTP 403
+
 # Cleanup
 DELETE {{url}}/track/0
 HTTP 200

@@ -563,6 +563,9 @@ components:
       - TrackWrite
       - TrackRead
       - TrackDelete
+      - AudioWrite
+      - AudioRead
+      - AudioDelete
     User:
       type: object
       description: The username and permissions of a user.

@@ -4,13 +4,21 @@ use rocket::{
 
 use std::path::{Path, PathBuf};
 
-use crate::{database::MyDatabase, error::ApiError};
+use crate::{
+    api::data::{permissions::Permission, users::User},
+    database::MyDatabase,
+    error::ApiError,
+};
 
 type Result<T> = std::result::Result<T, ApiError>;
 
 /// Upload the audio file for a track.
 #[put("/audio/<track>", format = "audio/mpeg", data = "<data>")]
-async fn upload_audio(db: MyDatabase, track: &str, data: Data<'_>) -> Result<()> {
+async fn upload_audio(db: MyDatabase, user: User, track: &str, data: Data<'_>) -> Result<()> {
+    if !user.permissions.contains(&Permission::AudioWrite) {
+        Err(Status::Forbidden)?
+    }
+
     // confirm that the track already exist
     let track_clone = track.to_string();
 
@@ -41,19 +49,27 @@ async fn upload_audio(db: MyDatabase, track: &str, data: Data<'_>) -> Result<()>
 
 /// Get the audio file for a track.
 #[get("/audio/<track>")]
-async fn get_audio(track: PathBuf) -> Option<NamedFile> {
-    NamedFile::open(
+async fn get_audio(user: User, track: PathBuf) -> Result<Option<NamedFile>> {
+    if !user.permissions.contains(&Permission::AudioRead) {
+        Err(Status::Forbidden)?
+    }
+
+    Ok(NamedFile::open(
         Path::new("./database/audio")
             .join(track)
             .with_extension("mp3"),
     )
     .await
-    .ok()
+    .ok())
 }
 
 /// Delete the audio file for a track.
 #[delete("/audio/<track>")]
-async fn delete_audio(track: PathBuf) -> Result<()> {
+async fn delete_audio(user: User, track: PathBuf) -> Result<()> {
+    if !user.permissions.contains(&Permission::AudioDelete) {
+        Err(Status::Forbidden)?
+    }
+
     let path = Path::new("./database/audio")
         .join(track)
         .with_extension("mp3");
