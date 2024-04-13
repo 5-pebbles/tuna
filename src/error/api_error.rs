@@ -7,6 +7,7 @@ pub enum ApiError {
     RusqliteError((Status, String)),
     #[response(status = 500)]
     HashError(String),
+    IoError((Status, String)),
     Status(Status),
 }
 
@@ -39,6 +40,6 @@ impl From<BcryptError> for ApiError {
 
 impl From<std::io::Error> for ApiError {
     fn from(e: std::io::Error) -> Self {
-        Self::Status(Status::InternalServerError)
+        Self::IoError((Status::InternalServerError, format!("IO Error: {e}")))
     }
 }
