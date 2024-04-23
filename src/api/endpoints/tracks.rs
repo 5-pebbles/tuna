@@ -2,14 +2,15 @@ use rocket::{fairing::AdHoc, http::Status, serde::json::Json};
 use rocket_sync_db_pools::rusqlite::{params, Error::QueryReturnedNoRows, ToSql};
 
 use crate::{
-    api::errors::ApiError,
-    database::{database::Database, permissions::Permission, tracks::Track, users::User},
+    api::data::{permissions::Permission, tracks::Track, users::User},
+    error::ApiError,
+    database::MyDatabase,
 };
 
 type Result<T> = std::result::Result<T, ApiError>;
 
 #[post("/track", data = "<track>")]
-async fn track_write(db: Database, user: User, track: Json<Track>) -> Result<Json<Track>> {
+async fn track_write(db: MyDatabase, user: User, track: Json<Track>) -> Result<Json<Track>> {
     if !user.permissions.contains(&Permission::TrackWrite) {
         Err(Status::Forbidden)?
     }
@@ -34,7 +35,7 @@ async fn track_write(db: Database, user: User, track: Json<Track>) -> Result<Jso
             track.artists.extend(
                 tx.prepare("SELECT artist_id FROM artist_albums WHERE album_id = ?")?
                     .query_map(params![album], |row| row.get::<usize, String>(0))?
-                    .map(|v| v.map_err(|e| ApiError::from(e)))
+                    .map(|v| v.map_err(ApiError::from))
                     .collect::<Result<Vec<String>>>()?,
             );
         }
@@ -55,7 +56,7 @@ async fn track_write(db: Database, user: User, track: Json<Track>) -> Result<Jso
 
 #[get("/track?<id>&<name>&<maxrelease>&<minrelease>&<genres>&<albums>&<artists>&<lyrics>&<limit>")]
 async fn track_get(
-    db: Database,
+    db: MyDatabase,
     user: User,
     id: Option<String>,
     name: Option<String>,
@@ -157,21 +158,19 @@ async fn track_get(
                     })
                 }
                     )?
-                .map(|v| v.map_err(|e| ApiError::from(e)))
+                .map(|v| v.map_err(ApiError::from))
                 .collect::<Result<Vec<Track>>>()?,
                ))
     }).await
 }
 
 #[delete("/track/<id>")]
-async fn track_delete(db: Database, user: User, id: String) -> Result<()> {
+async fn track_delete(db: MyDatabase, user: User, id: String) -> Result<()> {
     if !user.permissions.contains(&Permission::TrackDelete) {
         Err(Status::Forbidden)?
     }
 
     db.run(move |conn| -> Result<()> {
-        conn.execute_batch("PRAGMA foreign_keys = ON;")?;
-
         let tx = conn.transaction()?;
 
         if let Err(QueryReturnedNoRows) =

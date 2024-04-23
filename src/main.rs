@@ -1,11 +1,14 @@
+#![allow(clippy::too_many_arguments)]
+
 #[macro_use]
 extern crate rocket;
 
 use std::{fs, path::Path};
 
 mod api;
-mod docs;
 mod database;
+mod docs;
+mod error;
 
 #[get("/")]
 fn index() -> &'static str {
@@ -13,10 +16,14 @@ fn index() -> &'static str {
 }
 
 fn create_working_dir() {
-    let db_dir = Path::new("./database/sqlite");
-    if !db_dir.exists() {
-        fs::create_dir_all(db_dir).expect("Failed to create database directory");
+    fn ensure_dir(dir: &str) {
+        let path = Path::new(dir);
+        if !path.exists() {
+            fs::create_dir_all(path).expect("Failed to create directory");
+        }
     }
+    ensure_dir("./database/sqlite");
+    ensure_dir("./database/audio");
 }
 
 #[launch]

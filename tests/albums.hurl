@@ -139,7 +139,7 @@ HTTP 200
 # End Delete Albums
 
 # Required Permissions
-DELETE {{url}}/permissions/SystemTest
+DELETE {{url}}/permission/SystemTest
 [
     "AlbumWrite"
 ]
@@ -159,7 +159,7 @@ HTTP 200
 [Asserts]
 jsonpath "$" count == 0
 
-DELETE {{url}}/permissions/SystemTest
+DELETE {{url}}/permission/SystemTest
 [
     "AlbumRead"
 ]
@@ -169,7 +169,7 @@ GET {{url}}/album
 HTTP 403
 
 
-DELETE {{url}}/permissions/SystemTest
+DELETE {{url}}/permission/SystemTest
 [
     "AlbumDelete"
 ]

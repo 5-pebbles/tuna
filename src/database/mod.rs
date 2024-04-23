@@ -1,22 +1,37 @@
 use rocket::fairing::AdHoc;
+use rocket_sync_db_pools::{database, rusqlite::Error};
 
-pub mod database;
-use database::Database;
+mod connection;
+mod pool_manager;
 
-pub mod invites;
-pub mod permissions;
-pub mod users;
+pub use connection::MyConnection;
+pub use pool_manager::MyPoolManager;
 
-pub mod albums;
-pub mod artists;
-pub mod tracks;
+mod embedded {
+    use refinery::embed_migrations;
+    embed_migrations!("./migrations");
+}
+
+#[database("db")]
+pub struct MyDatabase(MyConnection);
+
+impl MyDatabase {
+    pub async fn migrations(&self) -> Result<(), Error> {
+        self.run(|conn| -> Result<(), Error> {
+            embedded::migrations::runner().run(&mut conn.0).unwrap();
+
+            Ok(())
+        })
+        .await
+    }
+}
 
 pub fn fairing() -> AdHoc {
     AdHoc::on_ignite("Database Systems", |rocket| async {
-        rocket.attach(Database::fairing()).attach(AdHoc::on_ignite(
+        rocket.attach(MyDatabase::fairing()).attach(AdHoc::on_ignite(
             "Database Migrations",
             |rocket| async {
-                <Database>::get_one(&rocket)
+                <MyDatabase>::get_one(&rocket)
                     .await
                     .expect("Mount Database")
                     .migrations()

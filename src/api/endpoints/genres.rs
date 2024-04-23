@@ -1,14 +1,36 @@
 use crate::{
-    api::errors::ApiError,
-    database::{database::Database, permissions::Permission, users::User},
+    api::data::{permissions::Permission, users::User},
+    database::MyDatabase,
+    error::ApiError,
 };
 use rocket::{fairing::AdHoc, http::Status, serde::json::Json};
 use rocket_sync_db_pools::rusqlite::{params, Error::QueryReturnedNoRows, ToSql};
 
 type Result<T> = std::result::Result<T, ApiError>;
 
+/// Writes a new genre to the database.
+///
+/// Requires: `GenreWrite` permission.
+#[utoipa::path(
+    responses(
+        (
+            status = 200,
+            description = "Success",
+            content_type = "application/json",
+            body = String,
+        ),
+        (status = 409, description = "Conflict genre already exists"),
+        (status = 403, description = "Forbidden requires permission `GenreWrite`"),
+    ),
+    params(
+        ("genre" = String, description = "The name of the genre to be written")
+    ),
+    security(
+        ("permissions" = ["GenreWrite"])
+    ),
+)]
 #[post("/genre/<genre>")]
-async fn genre_write(db: Database, user: User, genre: String) -> Result<Json<String>> {
+async fn genre_write(db: MyDatabase, user: User, genre: String) -> Result<Json<String>> {
     if !user.permissions.contains(&Permission::GenreWrite) {
         Err(Status::Forbidden)?
     }
@@ -20,9 +42,25 @@ async fn genre_write(db: Database, user: User, genre: String) -> Result<Json<Str
     .await
 }
 
+/// Retrieve a list of genres from the database.
+///
+/// Requires: `GenreRead` permission.
+#[utoipa::path(
+    responses(
+        (status = 200, description = "Success", body = Vec<String>, example = json!(["indie rock", "indie pop"])),
+        (status = 403, description = "Forbidden requires permission `GenreRead`"),
+    ),
+    params(
+        ("genre", Query, description = "The the name/part of the name of a genre"),
+        ("limit", Query, description = "The maximum number of results to return")
+    ),
+    security(
+        ("permissions" = ["GenreRead"])
+    ),
+)]
 #[get("/genre?<genre>&<limit>")]
 async fn genre_get(
-    db: Database,
+    db: MyDatabase,
     user: User,
     genre: Option<String>,
     limit: Option<u16>,
@@ -48,22 +86,36 @@ async fn genre_get(
         Ok(Json(
             conn.prepare(&sql)?
                 .query_map(&params_sql[..], |row| row.get(0))?
-                .map(|v| v.map_err(|e| ApiError::from(e)))
+                .map(|v| v.map_err(ApiError::from))
                 .collect::<Result<Vec<String>>>()?,
         ))
     })
     .await
 }
 
+/// Delete a genre from the database.
+///
+/// Requires: `GenreDelete` permission.
+#[utoipa::path(
+    responses(
+        (status = 200, description = "Success"),
+        (status = 403, description = "Forbidden requires permission `GenreDelete`"),
+        (status = 404, description = "Not Found genre does not exist"),
+    ),
+    params(
+        ("genre" = String, description = "The genre to be deleted")
+    ),
+    security(
+        ("permissions" = ["GenreDelete"])
+    ),
+)]
 #[delete("/genre/<genre>")]
-async fn genre_delete(db: Database, user: User, genre: String) -> Result<()> {
+async fn genre_delete(db: MyDatabase, user: User, genre: String) -> Result<()> {
     if !user.permissions.contains(&Permission::GenreDelete) {
         Err(Status::Forbidden)?
     }
 
     db.run(move |conn| -> Result<()> {
-        conn.execute_batch("PRAGMA foreign_keys = ON;")?;
-
         let tx = conn.transaction()?;
 
         if let Err(QueryReturnedNoRows) =

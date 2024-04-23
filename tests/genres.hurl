@@ -66,7 +66,7 @@ HTTP 200
 # End Delete Genres
 
 # Required Permissions
-DELETE {{url}}/permissions/SystemTest
+DELETE {{url}}/permission/SystemTest
 [
     "GenreWrite"
 ]
@@ -75,7 +75,7 @@ HTTP 200
 POST {{url}}/genre/fakemusic
 HTTP 403
 
-DELETE {{url}}/permissions/SystemTest
+DELETE {{url}}/permission/SystemTest
 [
     "GenreRead"
 ]
@@ -84,7 +84,7 @@ HTTP 200
 GET {{url}}/genre
 HTTP 403
 
-DELETE {{url}}/permissions/SystemTest
+DELETE {{url}}/permission/SystemTest
 [
     "GenreDelete"
 ]

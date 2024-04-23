@@ -1,11 +1,101 @@
 openapi: 3.0.3
 info:
   title: tuna
-  description: ''
+  description: A open source music api, designed to allow client side automation & contributions.
   license:
     name: ''
   version: 0.1.0
 paths:
+  /audio/{track}:
+    get:
+      tags:
+      - audio
+      summary: Get the audio file for a track.
+      description: |-
+        Get the audio file for a track.
+
+        Requires: `AudioRead` permission.
+      operationId: audio_get
+      parameters:
+      - name: track
+        in: path
+        description: The id of the track who's audio you are downloading
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+        '403':
+          description: Forbidden requires permission `AudioRead`
+        '404':
+          description: The requested audio does not exist
+      security:
+      - permissions:
+        - AudioRead
+    put:
+      tags:
+      - audio
+      summary: Upload the audio file for a track.
+      description: |-
+        Upload the audio file for a track.
+
+        Requires: `AudioWrite` permission.
+      operationId: audio_upload
+      parameters:
+      - name: track
+        in: path
+        description: The id of track for which you are uploading audio
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The audio file to upload
+        content:
+          audio/mpeg:
+            schema:
+              type: string
+        required: true
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Forbidden reqiures permission `AudioWrite`
+        '404':
+          description: The track does not exist
+      security:
+      - permissions:
+        - AudioWrite
+    delete:
+      tags:
+      - audio
+      summary: Delete the audio file for a track.
+      description: |-
+        Delete the audio file for a track.
+
+        Requires: `AudioDelete` permission.
+      operationId: audio_delete
+      parameters:
+      - name: track
+        in: path
+        description: The id of the track who's audio you are deleting
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Forbidden requires permission `AudioDelete`
+        '404':
+          description: The audio file does not exist
+      security:
+      - permissions:
+        - AudioDelete
   /docs/openapi.json:
     get:
       tags:
@@ -50,7 +140,537 @@ paths:
       security:
       - permissions:
         - DocsRead
+  /genre:
+    get:
+      tags:
+      - genres
+      summary: Retrieve a list of genres from the database.
+      description: |-
+        Retrieve a list of genres from the database.
+
+        Requires: `GenreRead` permission.
+      operationId: genre_get
+      parameters:
+      - name: genre
+        in: query
+        description: The the name/part of the name of a genre
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: limit
+        in: query
+        description: The maximum number of results to return
+        required: false
+        schema:
+          type: integer
+          format: int32
+          nullable: true
+          minimum: 0
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+              example:
+              - indie rock
+              - indie pop
+        '403':
+          description: Forbidden requires permission `GenreRead`
+      security:
+      - permissions:
+        - GenreRead
+  /genre/{genre}:
+    post:
+      tags:
+      - genres
+      summary: Writes a new genre to the database.
+      description: |-
+        Writes a new genre to the database.
+
+        Requires: `GenreWrite` permission.
+      operationId: genre_write
+      parameters:
+      - name: genre
+        in: path
+        description: The name of the genre to be written
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string
+        '403':
+          description: Forbidden requires permission `GenreWrite`
+        '409':
+          description: Conflict genre already exists
+      security:
+      - permissions:
+        - GenreWrite
+    delete:
+      tags:
+      - genres
+      summary: Delete a genre from the database.
+      description: |-
+        Delete a genre from the database.
+
+        Requires: `GenreDelete` permission.
+      operationId: genre_delete
+      parameters:
+      - name: genre
+        in: path
+        description: The genre to be deleted
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Forbidden requires permission `GenreDelete`
+        '404':
+          description: Not Found genre does not exist
+      security:
+      - permissions:
+        - GenreDelete
+  /init:
+    post:
+      tags:
+      - users
+      summary: Creates the first user in the database.
+      description: |-
+        Creates the first user in the database.
+
+        This endpoint only works if the database is empty.
+        It allows the creation of the first user, who can then invite all other users.
+        The first user has all permissions available.
+      operationId: user_init
+      requestBody:
+        description: The username & password of the first user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DangerousLogin'
+        required: true
+      responses:
+        '200':
+          description: The user was created successfully
+        '409':
+          description: Conflict the database is not empty
+  /invite:
+    get:
+      tags:
+      - invites
+      summary: Retrieves a list of invites.
+      description: |-
+        Retrieves a list of invites.
+
+        Requires the `InviteRead` permission.
+      operationId: invite_get
+      parameters:
+      - name: code
+        in: query
+        description: The invite code to search for
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: permissions
+        in: query
+        description: The permissions the invite must grant
+        required: false
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/Json'
+          nullable: true
+      - name: maxremaining
+        in: query
+        description: The maximum remaining uses
+        required: false
+        schema:
+          type: integer
+          format: int32
+          nullable: true
+          minimum: 0
+      - name: minremaining
+        in: query
+        description: The minimum remaining uses
+        required: false
+        schema:
+          type: integer
+          format: int32
+          nullable: true
+          minimum: 0
+      - name: creator
+        in: query
+        description: The creator of the invite
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: limit
+        in: query
+        description: The maximum number of invites to return
+        required: false
+        schema:
+          type: integer
+          format: int32
+          nullable: true
+          minimum: 0
+      responses:
+        '200':
+          description: Successfully retrieved invites
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Invite'
+        '403':
+          description: Forbidden requires permission `InviteRead`
+      security:
+      - permissions:
+        - InviteRead
+    post:
+      tags:
+      - invites
+      summary: Creates a new invite code.
+      description: |-
+        Creates a new invite code.
+
+        Requires the `InviteWrite` & all permissions of the new invite.
+      operationId: invite_write
+      requestBody:
+        description: The invite information
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Invite'
+        required: true
+      responses:
+        '200':
+          description: Successfully created invite
+        '403':
+          description: You do not have the required permissions to create the invite
+        '409':
+          description: Invite code already exists
+      security:
+      - permissions:
+        - InviteWrite
+  /invite/{code}:
+    post:
+      tags:
+      - invites
+      summary: Uses an invite code to create a new user.
+      description: Uses an invite code to create a new user.
+      operationId: invite_use
+      parameters:
+      - name: code
+        in: path
+        description: The invite code to use
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: The login information for the new user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DangerousLogin'
+        required: true
+      responses:
+        '200':
+          description: Successfully created account
+        '404':
+          description: Invite code not found
+    delete:
+      tags:
+      - invites
+      summary: Deletes an invite code.
+      description: |-
+        Deletes an invite code.
+
+        Requires the `InviteDelete` permission.
+      operationId: invite_delete
+      parameters:
+      - name: code
+        in: path
+        description: The invite code to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Forbidden requires permission `InviteDelete`
+      security:
+      - permissions:
+        - InviteDelete
+  /permission/{username}:
+    post:
+      tags:
+      - permissions
+      summary: Grant another user a list of permissions
+      description: |-
+        Grant another user a list of permissions
+
+        Requires: `PermissionAdd` as well as all permissions you intend to grant
+      operationId: permission_add
+      parameters:
+      - name: username
+        in: path
+        description: The username of the user you would like to grant permissions to
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: A list of permissions to grant
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Permission'
+            example:
+            - DocsRead
+            - PermissionAdd
+        required: true
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Forbidden you do not have the required permissions
+      security:
+      - permissions:
+        - PermissionAdd
+    delete:
+      tags:
+      - permissions
+      summary: Revoke a list of permissions from a user
+      description: |-
+        Revoke a list of permissions from a user
+
+        Requires: `PermissionDelete` & all permissions of the user who's permissions are being revoked
+      operationId: permission_delete
+      parameters:
+      - name: username
+        in: path
+        description: The username of the user who's permissions you would like to revoke
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: A list of permissions to Revoke
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Permission'
+            example:
+            - DocsRead
+            - PermissionDelete
+        required: true
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Forbidden you do not have the required permissions
+      security:
+      - permissions:
+        - PermissionDelete
+  /token:
+    post:
+      tags:
+      - tokens
+      summary: Creates a login token which can be used to access other endpoints
+      description: Creates a login token which can be used to access other endpoints
+      operationId: token_write
+      requestBody:
+        description: Your username & password
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DangerousLogin'
+        required: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: string
+              example: 479f879a-db6d-47e9-a094-124cd0ad648f
+        '403':
+          description: Forbidden invalid username and/or password
+  /token/{username}:
+    delete:
+      tags:
+      - tokens
+      summary: Delete all login tokens for a given user
+      description: |-
+        Delete all login tokens for a given user
+
+        Requires: `TokenDelete` permission to delete another users tokens, but you are free to delete your own
+      operationId: token_delete
+      parameters:
+      - name: username
+        in: path
+        description: The username of the user who's tokens you would like to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Forbidden requires permission `TokenDelete`
+      security:
+      - permissions:
+        - TokenDelete
+  /user:
+    get:
+      tags:
+      - users
+      summary: Retrieve a list of users.
+      description: |-
+        Retrieve a list of users.
+
+        Requires: `UserRead` permission.
+      operationId: user_get
+      parameters:
+      - name: username
+        in: query
+        description: The username to search for
+        required: false
+        schema:
+          type: string
+          nullable: true
+      - name: permissions
+        in: query
+        description: The permissions the user must possess
+        required: false
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/Json'
+          nullable: true
+      - name: limit
+        in: query
+        description: The maximum number of users to return
+        required: false
+        schema:
+          type: integer
+          format: int32
+          nullable: true
+          minimum: 0
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '403':
+          description: Forbidden requires permission `UserRead`
+      security:
+      - permissions:
+        - UserRead
+  /user/{username}:
+    delete:
+      tags:
+      - users
+      summary: Deletes a user from the database.
+      description: |-
+        Deletes a user from the database.
+
+        Requires: `UserDelete` permission to delete another user, but you are free to delete yourself.
+      operationId: user_delete
+      parameters:
+      - name: username
+        in: path
+        description: The username of the user to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success
+        '403':
+          description: Forbidded you do not have the required permissions
+      security:
+      - permissions:
+        - UserDelete
 components:
+  schemas:
+    DangerousLogin:
+      type: object
+      description: The login information for a user.
+      required:
+      - username
+      - password
+      properties:
+        password:
+          type: string
+          description: Your password
+          example: jnoM76raK
+        username:
+          type: string
+          description: Your username
+          example: 5-pebbles
+    Permission:
+      type: string
+      description: The permissions available in the server.
+      enum:
+      - DocsRead
+      - InviteWrite
+      - InviteRead
+      - InviteDelete
+      - UserRead
+      - UserDelete
+      - PermissionAdd
+      - PermissionDelete
+      - TokenDelete
+      - GenreWrite
+      - GenreRead
+      - GenreDelete
+      - ArtistWrite
+      - ArtistRead
+      - ArtistDelete
+      - AlbumWrite
+      - AlbumRead
+      - AlbumDelete
+      - TrackWrite
+      - TrackRead
+      - TrackDelete
+      - AudioWrite
+      - AudioRead
+      - AudioDelete
+    User:
+      type: object
+      description: The username and permissions of a user.
+      required:
+      - username
+      - permissions
+      properties:
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
+          example: '[''UserRead'', ''DocsRead'']'
+        username:
+          type: string
+          example: 5-pebbles
   securitySchemes:
     api_key:
       type: apiKey

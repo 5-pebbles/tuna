@@ -2,7 +2,10 @@ use rocket::serde::{Deserialize, Serialize};
 use rocket_sync_db_pools::rusqlite::{Error, Row};
 use std::str::FromStr;
 use strum::{Display, EnumIter, EnumString, IntoStaticStr};
+use utoipa::ToSchema;
 
+/// The permissions available in the server.
+#[allow(clippy::enum_variant_names)]
 #[non_exhaustive]
 #[derive(
     Debug,
@@ -15,6 +18,7 @@ use strum::{Display, EnumIter, EnumString, IntoStaticStr};
     EnumIter,
     EnumString,
     IntoStaticStr,
+    ToSchema,
 )]
 #[serde(crate = "rocket::serde")]
 #[strum(serialize_all = "PascalCase", ascii_case_insensitive)]
@@ -51,6 +55,11 @@ pub enum Permission {
     TrackWrite,
     TrackRead,
     TrackDelete,
+
+    // Content
+    AudioWrite,
+    AudioRead,
+    AudioDelete,
 }
 
 /// Extracts permissions from a rusqlite row and converts them into a `Vec<Permission>`.
@@ -72,9 +81,9 @@ pub enum Permission {
 ///
 pub fn permissions_from_row(row: &Row) -> Result<Vec<Permission>, Error> {
     Ok(row.get::<&str, Option<String>>("permissions")?.map_or_else(
-        || Vec::new(),
+        Vec::new,
         |v| {
-            v.split(",")
+            v.split(',')
                 .filter_map(|s| Permission::from_str(s).ok())
                 .collect()
         },

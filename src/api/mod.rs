@@ -1,11 +1,10 @@
 use rocket::fairing::AdHoc;
 
-pub mod errors;
-mod music;
-mod user;
+pub mod data;
+pub mod endpoints;
 
 pub fn fairing() -> AdHoc {
     AdHoc::on_ignite("API Systems", |rocket| async {
-        rocket.attach(user::fairing()).attach(music::fairing())
+        rocket.attach(endpoints::fairing())
     })
 }

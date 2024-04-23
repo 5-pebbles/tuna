@@ -2,25 +2,36 @@ use rocket::{fairing::AdHoc, http::Status, serde::json::Json};
 use rocket_sync_db_pools::rusqlite::{params, params_from_iter, ToSql};
 
 use crate::{
-    api::errors::ApiError,
-    database::{
-        database::Database,
+    api::data::{
         invites::Invite,
         permissions::{permissions_from_row, Permission},
         users::{DangerousLogin, User},
     },
+    database::MyDatabase,
+    error::ApiError,
 };
 
 type Result<T> = std::result::Result<T, ApiError>;
 
-// creates a new account
+/// Uses an invite code to create a new user.
+#[utoipa::path(
+    request_body(
+        description = "The login information for the new user",
+        content = DangerousLogin,
+    ),
+    responses(
+        (status = 200, description = "Successfully created account"),
+        (status = 404, description = "Invite code not found"),
+    ),
+    params(
+        ("code", description = "The invite code to use"),
+    ),
+)]
 #[post("/invite/<code>", data = "<login>")]
-async fn invite_use(db: Database, code: String, login: Json<DangerousLogin>) -> Result<()> {
+async fn invite_use(db: MyDatabase, code: String, login: Json<DangerousLogin>) -> Result<()> {
     let login = login.into_inner();
 
     db.run(move |conn| -> Result<()> {
-        conn.execute_batch("PRAGMA foreign_keys = ON;")?; // delete run when the invite remaining = 0
-
         let tx = conn.transaction()?;
 
         let (remaining, permissions): (u16, Vec<Permission>) = tx
@@ -32,7 +43,7 @@ async fn invite_use(db: Database, code: String, login: Json<DangerousLogin>) -> 
                 params![code],
                 |row| Ok((row.get("remaining")?, permissions_from_row(row)?)),
             )
-            .map_err(|e| ApiError::from(e))?;
+            .map_err(ApiError::from)?;
 
         login.insert_user_into_transaction(permissions, &tx)?;
 
@@ -50,8 +61,25 @@ async fn invite_use(db: Database, code: String, login: Json<DangerousLogin>) -> 
     .await
 }
 
+/// Creates a new invite code.
+///
+/// Requires the `InviteWrite` & all permissions of the new invite.
+#[utoipa::path(
+    request_body(
+        description = "The invite information",
+        content = Invite,
+    ),
+    responses(
+        (status = 200, description = "Successfully created invite"),
+        (status = 403, description = "You do not have the required permissions to create the invite"),
+        (status = 409, description = "Invite code already exists"),
+    ),
+    security(
+        ("permissions" = ["InviteWrite"]),
+    ),
+)]
 #[post("/invite", data = "<invite>")]
-async fn invite_write(db: Database, user: User, invite: Json<Invite>) -> Result<Json<Invite>> {
+async fn invite_write(db: MyDatabase, user: User, invite: Json<Invite>) -> Result<Json<Invite>> {
     let mut invite = invite.into_inner();
     let mut required_permissions = invite.permissions.to_owned();
     required_permissions.push(Permission::InviteWrite);
@@ -65,7 +93,6 @@ async fn invite_write(db: Database, user: User, invite: Json<Invite>) -> Result<
 
     invite.creator = user.username;
     db.run(move |conn| -> Result<Json<Invite>> {
-        conn.execute_batch("PRAGMA foreign_keys = ON;")?;
         let tx = conn.transaction()?;
 
         if tx.query_row(
@@ -85,7 +112,7 @@ async fn invite_write(db: Database, user: User, invite: Json<Invite>) -> Result<
         if invite.permissions.is_empty() {
             // don't forget to commit, I mean its a bit late but...
             tx.commit()?;
-            return Ok(Json(invite))
+            return Ok(Json(invite));
         }
 
         let sql = format!(
@@ -113,9 +140,29 @@ async fn invite_write(db: Database, user: User, invite: Json<Invite>) -> Result<
     .await
 }
 
+/// Retrieves a list of invites.
+///
+/// Requires the `InviteRead` permission.
+#[utoipa::path(
+    responses(
+        (status = 200, description = "Successfully retrieved invites", body = Vec<Invite>),
+        (status = 403, description = "Forbidden requires permission `InviteRead`"),
+    ),
+    params(
+        ("code", Query, description = "The invite code to search for"),
+        ("permissions", Query, description = "The permissions the invite must grant"),
+        ("maxremaining", Query, description = "The maximum remaining uses"),
+        ("minremaining", Query, description = "The minimum remaining uses"),
+        ("creator", Query, description = "The creator of the invite"),
+        ("limit", Query, description = "The maximum number of invites to return"),
+    ),
+    security(
+        ("permissions" = ["InviteRead"]),
+    ),
+)]
 #[get("/invite?<code>&<permissions>&<maxremaining>&<minremaining>&<creator>&<limit>")]
 async fn invite_get(
-    db: Database,
+    db: MyDatabase,
     user: User,
     code: Option<String>,
     permissions: Option<Json<Vec<Permission>>>,
@@ -168,24 +215,36 @@ async fn invite_get(
         Ok(Json(
             conn.prepare(&sql)?
                 .query_map(&params_sql[..], Invite::try_from_row)?
-                .map(|v| v.map_err(|e| ApiError::from(e)))
+                .map(|v| v.map_err(ApiError::from))
                 .collect::<Result<Vec<Invite>>>()?,
         ))
     })
     .await
 }
 
+/// Deletes an invite code.
+///
+/// Requires the `InviteDelete` permission.
+#[utoipa::path(
+    responses(
+        (status = 200, description = "Success"),
+        (status = 403, description = "Forbidden requires permission `InviteDelete`"),
+    ),
+    params(
+        ("code", description = "The invite code to delete"),
+    ),
+    security(
+        ("permissions" = ["InviteDelete"]),
+    ),
+)]
 #[delete("/invite/<code>")]
-async fn invite_delete(db: Database, user: User, code: String) -> Result<()> {
+async fn invite_delete(db: MyDatabase, user: User, code: String) -> Result<()> {
     if !user.permissions.contains(&Permission::InviteDelete) {
         return Err(Status::Forbidden)?;
     }
 
-    db.run(move |conn| {
-        conn.execute_batch("PRAGMA foreign_keys = ON;")?;
-        conn.execute("DELETE FROM invites WHERE code = ?", params![code])
-    })
-    .await?;
+    db.run(move |conn| conn.execute("DELETE FROM invites WHERE code = ?", params![code]))
+        .await?;
     Ok(())
 }
 

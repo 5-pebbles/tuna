@@ -6,19 +6,23 @@ use rocket::{
     request::{self, FromRequest, Request},
 };
 use rocket_sync_db_pools::rusqlite::{params, params_from_iter, Error, Row, Transaction};
+use utoipa::{ToSchema, schema};
 
 use crate::{
-    api::errors::ApiError,
-    database::{
-        permissions::{permissions_from_row, Permission},
-        Database,
-    },
+    api::data::permissions::{permissions_from_row, Permission},
+    database::MyDatabase,
+    error::ApiError,
 };
 
-#[derive(Deserialize)]
+/// The login information for a user.
+#[derive(Deserialize, ToSchema)]
 #[serde(crate = "rocket::serde")]
 pub struct DangerousLogin {
+    /// Your username
+    #[schema(example = "5-pebbles")]
     pub username: String,
+    /// Your password
+    #[schema(example = "jnoM76raK")]
     pub password: String,
 }
 
@@ -35,7 +39,7 @@ impl DangerousLogin {
 
         let permissions = permissions_iter.into_iter().collect::<Vec<_>>();
         if permissions.is_empty() {
-            return Ok(())
+            return Ok(());
         }
 
         let placeholders = permissions
@@ -61,10 +65,13 @@ impl DangerousLogin {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+/// The username and permissions of a user.
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
 #[serde(crate = "rocket::serde")]
 pub struct User {
+    #[schema(example = "5-pebbles")]
     pub username: String,
+    #[schema(example = "['UserRead', 'DocsRead']")]
     pub permissions: Vec<Permission>,
 }
 
@@ -83,7 +90,7 @@ impl<'r> FromRequest<'r> for User {
     type Error = ApiError;
 
     async fn from_request(request: &'r Request<'_>) -> request::Outcome<User, Self::Error> {
-        let db = match request.guard::<Database>().await {
+        let db = match request.guard::<MyDatabase>().await {
             Outcome::Success(db) => db,
             Outcome::Forward(f) => return Outcome::Forward(f),
             Outcome::Error((e, _)) => {

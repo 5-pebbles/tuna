@@ -26,7 +26,7 @@ HTTP 200
 # End Setup
 
 
-POST {{url}}/permissions/SystemTest2
+POST {{url}}/permission/SystemTest2
 [
     "InviteRead"
 ]
@@ -37,7 +37,7 @@ HTTP 200
 [Asserts]
 jsonpath "$[0].permissions" includes "InviteRead"
 
-DELETE {{url}}/permissions/SystemTest2
+DELETE {{url}}/permission/SystemTest2
 [
     "InviteRead"
 ]
