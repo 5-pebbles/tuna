@@ -36,9 +36,12 @@ cargo run
 
 ## Documentation 📚
 
-For detailed API documentation, including endpoints, parameters, and responses, please refer to the OpenAPI documentation [JSON](./docs/openapi.json) or [YAML](./docs/openapi.yaml).
+For detailed API documentation, including endpoints, parameters, and responses, please refer to the OpenAPI documentation:
 
-These are generated with the help of [Utoipa](https://github.com/juhaku/utoipa); the source is located above the definitions of each endpoint.
+- [JSON](./docs/openapi.json)
+- [YAML](./docs/openapi.yaml)
+
+These are generated with the help of [Utoipa](https://github.com/juhaku/utoipa); the source code is located above each endpoints definition.
 
 ## Testing 🧪
 
