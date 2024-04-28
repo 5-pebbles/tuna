@@ -1,16 +1,16 @@
-name: tests
+name: checks
 
 on:
- push:
+  push:
     branches: [ "main" ]
- pull_request:
+  pull_request:
     branches: [ "**" ]
 
 env:
- CARGO_TERM_COLOR: always
+  CARGO_TERM_COLOR: always
 
 jobs:
- app_tests:
+  tests:
     runs-on: ubuntu-latest
 
     steps:
@@ -30,3 +30,18 @@ jobs:
       with:
         command: test
 
+  lints:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+    - name: Rust Toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        override: true
+    - name: Run Clippy
+      uses: actions-rs/clippy-check@v1
+      with:
+        args: --all-targets --all-features -- -D warnings
