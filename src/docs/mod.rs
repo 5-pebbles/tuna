@@ -21,7 +21,7 @@ use crate::api::{
         permissions::Permission,
         users::{DangerousLogin, User},
     },
-    endpoints::{genres, invites, permissions, tokens, users, audio},
+    endpoints::{audio, genres, invites, permissions, tokens, users},
 };
 
 #[derive(OpenApi)]

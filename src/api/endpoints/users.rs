@@ -3,20 +3,20 @@ use rocket_sync_db_pools::rusqlite::{params, params_from_iter};
 use strum::IntoEnumIterator;
 
 use crate::{
-    error::ApiError,
-    database::MyDatabase,
     api::data::{
-        permissions::{Permission, permissions_from_row},
+        permissions::{permissions_from_row, Permission},
         users::{DangerousLogin, User},
     },
+    database::MyDatabase,
+    error::ApiError,
 };
 
 type Result<T> = std::result::Result<T, ApiError>;
 
 /// Creates the first user in the database.
 ///
-/// This endpoint only works if the database is empty. 
-/// It allows the creation of the first user, who can then invite all other users. 
+/// This endpoint only works if the database is empty.
+/// It allows the creation of the first user, who can then invite all other users.
 /// The first user has all permissions available.
 #[utoipa::path(
     request_body(
@@ -43,7 +43,7 @@ async fn user_init(db: MyDatabase, login: Json<DangerousLogin>) -> Result<()> {
         )? {
             Err(Status::Conflict)?
         };
-        
+
         login.insert_user_into_transaction(Permission::iter(), &tx)?;
 
         tx.commit()?;
@@ -144,14 +144,13 @@ async fn user_delete(db: MyDatabase, user: User, username: &str) -> Result<()> {
 
         if username != user.username {
             // we cant select directly from the user_permissions table because the user might not have any permissions
-            let mut required_permissions = tx
-                .query_row(
-                    "SELECT GROUP_CONCAT(DISTINCT user_permissions.id) AS permissions FROM users
+            let mut required_permissions = tx.query_row(
+                "SELECT GROUP_CONCAT(DISTINCT user_permissions.id) AS permissions FROM users
                     LEFT JOIN user_permissions ON users.username = user_permissions.username
                     WHERE users.username = ? GROUP BY users.username",
-                    params![username],
-                    permissions_from_row,
-                )?;
+                params![username],
+                permissions_from_row,
+            )?;
 
             required_permissions.push(Permission::UserDelete);
 
