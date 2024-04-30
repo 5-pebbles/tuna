@@ -1,9 +1,5 @@
 use rocket::{serde, Build, Rocket};
-use rocket_sync_db_pools::{
-    r2d2,
-    rusqlite,
-    Config, PoolResult, Poolable,
-};
+use rocket_sync_db_pools::{r2d2, rusqlite, Config, PoolResult, Poolable};
 
 use std::ops::{Deref, DerefMut};
 use std::time::Duration;

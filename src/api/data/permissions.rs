@@ -80,12 +80,11 @@ pub enum Permission {
 ///   or an error if the permissions could not be extracted or converted.
 ///
 pub fn permissions_from_row(row: &Row) -> Result<Vec<Permission>, Error> {
-    Ok(row.get::<&str, Option<String>>("permissions")?.map_or_else(
-        Vec::new,
-        |v| {
+    Ok(row
+        .get::<&str, Option<String>>("permissions")?
+        .map_or_else(Vec::new, |v| {
             v.split(',')
                 .filter_map(|s| Permission::from_str(s).ok())
                 .collect()
-        },
-    ))
+        }))
 }

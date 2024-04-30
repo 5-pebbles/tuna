@@ -6,8 +6,8 @@ use crate::{
         permissions::{permissions_from_row, Permission},
         users::User,
     },
-    error::ApiError,
     database::MyDatabase,
+    error::ApiError,
 };
 
 type Result<T> = std::result::Result<T, ApiError>;

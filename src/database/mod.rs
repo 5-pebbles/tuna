@@ -28,9 +28,9 @@ impl MyDatabase {
 
 pub fn fairing() -> AdHoc {
     AdHoc::on_ignite("Database Systems", |rocket| async {
-        rocket.attach(MyDatabase::fairing()).attach(AdHoc::on_ignite(
-            "Database Migrations",
-            |rocket| async {
+        rocket
+            .attach(MyDatabase::fairing())
+            .attach(AdHoc::on_ignite("Database Migrations", |rocket| async {
                 <MyDatabase>::get_one(&rocket)
                     .await
                     .expect("Mount Database")
@@ -38,7 +38,6 @@ pub fn fairing() -> AdHoc {
                     .await
                     .expect("Database Migrations Failed");
                 rocket
-            },
-        ))
+            }))
     })
 }

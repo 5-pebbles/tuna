@@ -26,7 +26,8 @@ fn hurl_tests() {
                 .unwrap_or_else(|_| panic!("Failed to kill cargo: pid = {}", cargo_pid));
             panic!("No stdout to parse...");
         }
-    }).lines();
+    })
+    .lines();
 
     for line in lines {
         match line {

@@ -6,7 +6,7 @@ use rocket::{
     request::{self, FromRequest, Request},
 };
 use rocket_sync_db_pools::rusqlite::{params, params_from_iter, Error, Row, Transaction};
-use utoipa::{ToSchema, schema};
+use utoipa::{schema, ToSchema};
 
 use crate::{
     api::data::permissions::{permissions_from_row, Permission},
