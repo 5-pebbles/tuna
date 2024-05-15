@@ -10,11 +10,6 @@ mod database;
 mod docs;
 mod error;
 
-#[get("/")]
-fn index() -> &'static str {
-    "Hello, world!"
-}
-
 fn create_working_dir() {
     fn ensure_dir(dir: &str) {
         let path = Path::new(dir);
@@ -34,5 +29,4 @@ fn rocket() -> _ {
         .attach(database::fairing())
         .attach(api::fairing())
         .attach(docs::fairing())
-        .mount("/", routes![index])
 }
