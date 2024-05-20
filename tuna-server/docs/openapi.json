@@ -15,7 +15,7 @@
           "audio"
         ],
         "summary": "Get the audio file for a track.",
-        "description": "Get the audio file for a track.\n\nRequires: `AudioRead` permission.",
+        "description": "Requires: `AudioRead` permission.",
         "operationId": "audio_get",
         "parameters": [
           {
@@ -59,7 +59,7 @@
           "audio"
         ],
         "summary": "Upload the audio file for a track.",
-        "description": "Upload the audio file for a track.\n\nRequires: `AudioWrite` permission.",
+        "description": "Requires: `AudioWrite` permission.",
         "operationId": "audio_upload",
         "parameters": [
           {
@@ -107,7 +107,7 @@
           "audio"
         ],
         "summary": "Delete the audio file for a track.",
-        "description": "Delete the audio file for a track.\n\nRequires: `AudioDelete` permission.",
+        "description": "Requires: `AudioDelete` permission.",
         "operationId": "audio_delete",
         "parameters": [
           {
@@ -146,7 +146,7 @@
           "crate"
         ],
         "summary": "Retrieve json OpenAPI documentation",
-        "description": "Retrieve json OpenAPI documentation\n\nRequires: `DocsRead` permission",
+        "description": "Requires: `DocsRead` permission",
         "operationId": "docs_json",
         "responses": {
           "200": {
@@ -178,7 +178,7 @@
           "crate"
         ],
         "summary": "Retrieve yaml OpenAPI documentation",
-        "description": "Retrieve yaml OpenAPI documentation\n\nRequires: `DocsRead` permission",
+        "description": "Requires: `DocsRead` permission",
         "operationId": "docs_yaml",
         "responses": {
           "200": {
@@ -210,7 +210,7 @@
           "genres"
         ],
         "summary": "Retrieve a list of genres from the database.",
-        "description": "Retrieve a list of genres from the database.\n\nRequires: `GenreRead` permission.",
+        "description": "Requires: `GenreRead` permission.",
         "operationId": "genre_get",
         "parameters": [
           {
@@ -273,7 +273,7 @@
           "genres"
         ],
         "summary": "Writes a new genre to the database.",
-        "description": "Writes a new genre to the database.\n\nRequires: `GenreWrite` permission.",
+        "description": "Requires: `GenreWrite` permission.",
         "operationId": "genre_write",
         "parameters": [
           {
@@ -317,7 +317,7 @@
           "genres"
         ],
         "summary": "Delete a genre from the database.",
-        "description": "Delete a genre from the database.\n\nRequires: `GenreDelete` permission.",
+        "description": "Requires: `GenreDelete` permission.",
         "operationId": "genre_delete",
         "parameters": [
           {
@@ -356,7 +356,7 @@
           "users"
         ],
         "summary": "Creates the first user in the database.",
-        "description": "Creates the first user in the database.\n\nThis endpoint only works if the database is empty.\nIt allows the creation of the first user, who can then invite all other users.\nThe first user has all permissions available.",
+        "description": "This endpoint only works if the database is empty.\nIt allows the creation of the first user, who can then invite all other users.\nThe first user has all permissions available.",
         "operationId": "user_init",
         "requestBody": {
           "description": "The username & password of the first user",
@@ -385,7 +385,7 @@
           "invites"
         ],
         "summary": "Retrieves a list of invites.",
-        "description": "Retrieves a list of invites.\n\nRequires the `InviteRead` permission.",
+        "description": "Requires the `InviteRead` permission.",
         "operationId": "invite_get",
         "parameters": [
           {
@@ -490,7 +490,7 @@
           "invites"
         ],
         "summary": "Creates a new invite code.",
-        "description": "Creates a new invite code.\n\nRequires the `InviteWrite` & all permissions of the new invite.",
+        "description": "Requires the `InviteWrite` & all permissions of the new invite.",
         "operationId": "invite_write",
         "requestBody": {
           "description": "The invite information",
@@ -529,7 +529,6 @@
           "invites"
         ],
         "summary": "Uses an invite code to create a new user.",
-        "description": "Uses an invite code to create a new user.",
         "operationId": "invite_use",
         "parameters": [
           {
@@ -567,7 +566,7 @@
           "invites"
         ],
         "summary": "Deletes an invite code.",
-        "description": "Deletes an invite code.\n\nRequires the `InviteDelete` permission.",
+        "description": "Requires the `InviteDelete` permission.",
         "operationId": "invite_delete",
         "parameters": [
           {
@@ -603,7 +602,7 @@
           "permissions"
         ],
         "summary": "Grant another user a list of permissions",
-        "description": "Grant another user a list of permissions\n\nRequires: `PermissionAdd` as well as all permissions you intend to grant",
+        "description": "Requires: `PermissionAdd` as well as all permissions you intend to grant",
         "operationId": "permission_add",
         "parameters": [
           {
@@ -655,7 +654,7 @@
           "permissions"
         ],
         "summary": "Revoke a list of permissions from a user",
-        "description": "Revoke a list of permissions from a user\n\nRequires: `PermissionDelete` & all permissions of the user who's permissions are being revoked",
+        "description": "Requires: `PermissionDelete` & all permissions of the user who's permissions are being revoked",
         "operationId": "permission_delete",
         "parameters": [
           {
@@ -709,7 +708,6 @@
           "tokens"
         ],
         "summary": "Creates a login token which can be used to access other endpoints",
-        "description": "Creates a login token which can be used to access other endpoints",
         "operationId": "token_write",
         "requestBody": {
           "description": "Your username & password",
@@ -746,7 +744,7 @@
           "tokens"
         ],
         "summary": "Delete all login tokens for a given user",
-        "description": "Delete all login tokens for a given user\n\nRequires: `TokenDelete` permission to delete another users tokens, but you are free to delete your own",
+        "description": "Requires: `TokenDelete` permission to delete another users tokens, but you are free to delete your own",
         "operationId": "token_delete",
         "parameters": [
           {
@@ -782,7 +780,7 @@
           "users"
         ],
         "summary": "Retrieve a list of users.",
-        "description": "Retrieve a list of users.\n\nRequires: `UserRead` permission.",
+        "description": "Requires: `UserRead` permission.",
         "operationId": "user_get",
         "parameters": [
           {
@@ -855,7 +853,7 @@
           "users"
         ],
         "summary": "Deletes a user from the database.",
-        "description": "Deletes a user from the database.\n\nRequires: `UserDelete` permission to delete another user, but you are free to delete yourself.",
+        "description": "Requires: `UserDelete` permission to delete another user, but you are free to delete yourself.",
         "operationId": "user_delete",
         "parameters": [
           {
