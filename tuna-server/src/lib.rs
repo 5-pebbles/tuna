@@ -8,7 +8,7 @@ use std::{fs, path::Path};
 mod api;
 mod database;
 mod docs;
-mod error;
+pub mod error;
 
 fn create_working_dir() {
     fn ensure_dir(dir: &str) {
