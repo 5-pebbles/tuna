@@ -14,6 +14,8 @@ pub enum ApiError {
     IoError(String),
     #[response(status = 500)]
     SerdeError(String),
+    #[response(status = 418)]
+    Unsupported(String),
     Status(Status),
 }
 

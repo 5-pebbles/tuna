@@ -1,4 +1,4 @@
-use rocket::{http::Status, request::FromParam, serde::Deserialize};
+use rocket::{request::FromParam, serde::Deserialize};
 use std::{convert::Infallible, str::FromStr};
 use strum::EnumString;
 use utoipa::{
@@ -48,7 +48,9 @@ pub fn generate_docs(format: &DocFormat) -> Result<String, ApiError> {
         DocFormat::JSON => openapi.to_json()?,
         DocFormat::PrettyJSON => openapi.to_pretty_json()?,
         DocFormat::YAML => openapi.to_yaml()?,
-        _ => Err(ApiError::Status(Status::ImATeapot))?,
+        _ => Err(ApiError::Unsupported(
+            "Error: Format Unsupported".to_string(),
+        ))?,
     })
 }
 
