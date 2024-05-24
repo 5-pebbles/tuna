@@ -1,9 +1,12 @@
+use rocket::{http::Status, request::FromParam, serde::Deserialize};
+use std::{convert::Infallible, str::FromStr};
+use strum::EnumString;
 use utoipa::{
     openapi::{
         schema::Components,
         security::{ApiKey, ApiKeyValue, SecurityScheme},
     },
-    Modify, OpenApi,
+    Modify, OpenApi, ToSchema,
 };
 
 use crate::{
@@ -18,25 +21,38 @@ use crate::{
 };
 
 #[allow(dead_code)]
+#[derive(EnumString, ToSchema, Deserialize)]
+#[strum(serialize_all = "lowercase", ascii_case_insensitive)]
+#[serde(rename_all = "lowercase", crate = "rocket::serde")]
 pub enum DocFormat {
+    #[serde(skip)]
+    Unsupported,
     JSON,
     PrettyJSON,
     YAML,
 }
 
-pub fn generate_docs(format: DocFormat) -> Result<String, ApiError> {
+impl<'r> FromParam<'r> for DocFormat {
+    type Error = Infallible;
+
+    fn from_param(param: &'r str) -> Result<Self, Self::Error> {
+        Ok(Self::from_str(param).unwrap_or(Self::Unsupported))
+    }
+}
+
+pub fn generate_docs(format: &DocFormat) -> Result<String, ApiError> {
     let openapi = ApiDoc::openapi();
     Ok(match format {
         DocFormat::JSON => openapi.to_json()?,
         DocFormat::PrettyJSON => openapi.to_pretty_json()?,
         DocFormat::YAML => openapi.to_yaml()?,
+        _ => Err(ApiError::Status(Status::ImATeapot))?,
     })
 }
 
 #[derive(OpenApi)]
 #[openapi(paths(
-        docs::docs_yaml,
-        docs::docs_json,
+        docs::docs_openapi,
         tokens::token_write,
         tokens::token_delete,
         permissions::permission_add,
@@ -54,7 +70,7 @@ pub fn generate_docs(format: DocFormat) -> Result<String, ApiError> {
         audio::audio_upload,
         audio::audio_get,
         audio::audio_delete,
-    ), components(schemas(Permission, DangerousLogin, User)), modifiers(&SecurityAddon))]
+    ), components(schemas(Permission, DangerousLogin, User, DocFormat)), modifiers(&SecurityAddon))]
 struct ApiDoc;
 
 struct SecurityAddon;
