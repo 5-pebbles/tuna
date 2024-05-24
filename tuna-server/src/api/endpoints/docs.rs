@@ -9,7 +9,7 @@ use crate::{
     error::ApiError,
 };
 
-/// Retrieve yaml OpenAPI documentation
+/// Retrieve OpenAPI documentation
 ///
 /// Requires: `DocsRead` permission
 #[utoipa::path(
@@ -18,59 +18,41 @@ use crate::{
     (
         status = 200,
         description = "Success",
-        content_type = "application/x-yaml",
         body = String,
     ),
     (
         status = 403,
         description = "Forbidden requires permission `DocsRead`"
-    )),
-    security(
-        ("permissions" = ["DocsRead"])
-    )
-)]
-#[get("/docs/openapi.yaml")]
-fn docs_yaml(user: User) -> Result<(ContentType, String), ApiError> {
-    if !user.permissions.contains(&Permission::DocsRead) {
-        Err(Status::Forbidden)?
-    }
-
-    let yaml = generate_docs(DocFormat::YAML)?;
-    Ok((ContentType::new("application", "x-yaml"), yaml))
-}
-
-/// Retrieve json OpenAPI documentation
-///
-/// Requires: `DocsRead` permission
-#[utoipa::path(
-    get,
-    responses(
-    (
-        status = 200,
-        description = "Success",
-        content_type = "application/json",
-        body = String,
     ),
     (
-        status = 403,
-        description = "Forbidden requires permission `DocsRead`"
+        status = 418,
+        description = "Unsuported documentation format"
     )),
+    params(
+        ("format" = DocFormat, description = "The requested documentation format"),
+    ),
     security(
         ("permissions" = ["DocsRead"])
     )
 )]
-#[get("/docs/openapi.json")]
-fn docs_json(user: User) -> Result<(ContentType, String), ApiError> {
+#[get("/docs/openapi/<format>")]
+fn docs_openapi(user: User, format: DocFormat) -> Result<(ContentType, String), ApiError> {
     if !user.permissions.contains(&Permission::DocsRead) {
         Err(Status::Forbidden)?
     }
 
-    let json = generate_docs(DocFormat::PrettyJSON)?;
-    Ok((ContentType::new("application", "json"), json))
+    // returns an ApiError if DocFormat::Unsupported
+    let docs = generate_docs(&format)?;
+
+    Ok(match format {
+        DocFormat::JSON | DocFormat::PrettyJSON => (ContentType::new("application", "json"), docs),
+        DocFormat::YAML => (ContentType::new("application", "x-yaml"), docs),
+        DocFormat::Unsupported => unreachable!(),
+    })
 }
 
 pub fn fairing() -> AdHoc {
     AdHoc::on_ignite("Docs Systems", |rocket| async {
-        rocket.mount("/", routes![docs_yaml, docs_json])
+        rocket.mount("/", routes![docs_openapi])
     })
 }

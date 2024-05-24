@@ -21,6 +21,7 @@ fn create_working_dir() {
     ensure_dir("./database/audio");
 }
 
+/// Launch the server
 pub fn launch() {
     create_working_dir();
 
