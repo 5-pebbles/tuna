@@ -3,6 +3,7 @@ use rocket::fairing::AdHoc;
 pub mod albums;
 pub mod artists;
 pub mod audio;
+pub mod docs;
 pub mod genres;
 pub mod invites;
 pub mod permissions;
@@ -22,5 +23,6 @@ pub fn fairing() -> AdHoc {
             .attach(users::fairing())
             .attach(tokens::fairing())
             .attach(audio::fairing())
+            .attach(docs::fairing())
     })
 }

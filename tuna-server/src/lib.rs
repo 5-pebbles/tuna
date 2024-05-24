@@ -28,7 +28,6 @@ pub fn launch() {
         rocket::build()
             .attach(database::fairing())
             .attach(api::fairing())
-            .attach(docs::fairing())
             .launch(),
     )
     .unwrap();

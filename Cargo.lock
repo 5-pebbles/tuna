@@ -1697,6 +1697,7 @@ dependencies = [
  "rocket_sync_db_pools",
  "rusqlite",
  "serde_json",
+ "serde_yaml",
  "strum",
  "utoipa",
  "uuid",
