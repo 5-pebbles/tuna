@@ -1,4 +1,4 @@
-use rocket::fairing::AdHoc;
+use rocket::{fairing::AdHoc, tokio::fs::create_dir_all};
 use rocket_sync_db_pools::{database, rusqlite::Error};
 
 mod connection;
@@ -28,6 +28,7 @@ impl MyDatabase {
 
 pub fn fairing() -> AdHoc {
     AdHoc::on_ignite("Database Systems", |rocket| async {
+        create_dir_all("./database/sqlite").await.expect("Failed to create directory");
         rocket
             .attach(MyDatabase::fairing())
             .attach(AdHoc::on_ignite("Database Migrations", |rocket| async {

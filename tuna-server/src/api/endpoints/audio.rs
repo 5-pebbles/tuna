@@ -1,5 +1,10 @@
 use rocket::{
-    data::ToByteUnit, fairing::AdHoc, fs::NamedFile, http::Status, tokio::fs::remove_file, Data,
+    data::ToByteUnit,
+    fairing::AdHoc,
+    fs::NamedFile,
+    http::Status,
+    tokio::fs::{create_dir_all, remove_file},
+    Data,
 };
 
 use std::path::{Path, PathBuf};
@@ -162,6 +167,9 @@ async fn audio_delete(user: User, track: PathBuf) -> Result<()> {
 
 pub fn fairing() -> AdHoc {
     AdHoc::on_ignite("API Audio Endpoints", |rocket| async {
+        create_dir_all("./database/audio")
+            .await
+            .expect("Failed to create directory");
         rocket.mount("/", routes![audio_upload, audio_get, audio_delete])
     })
 }
