@@ -20,6 +20,7 @@ use crate::{
     error::ApiError,
 };
 
+/// Enum representing documentation formats.
 #[allow(dead_code)]
 #[derive(EnumString, ToSchema, Deserialize)]
 #[strum(serialize_all = "lowercase", ascii_case_insensitive)]
@@ -40,6 +41,7 @@ impl<'r> FromParam<'r> for DocFormat {
     }
 }
 
+/// Generates the documentation in the specified format.
 pub fn generate_docs(format: &DocFormat) -> Result<String, ApiError> {
     let openapi = ApiDoc::openapi();
     Ok(match format {

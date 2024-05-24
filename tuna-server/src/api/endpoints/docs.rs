@@ -41,6 +41,7 @@ fn docs_openapi(user: User, format: DocFormat) -> Result<(ContentType, String), 
         Err(Status::Forbidden)?
     }
 
+    // returns an ApiError if DocFormat::Unsupported
     let docs = generate_docs(&format)?;
 
     Ok(match format {

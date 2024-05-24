@@ -4,6 +4,7 @@ use rocket_sync_db_pools::rusqlite::{Error as RusqliteError, ErrorCode as Rusqli
 use serde_json::Error as JsonError;
 use serde_yaml::Error as YamlError;
 
+/// Error returned by the API
 #[derive(Debug, Responder)]
 pub enum ApiError {
     RusqliteError((Status, String)),
